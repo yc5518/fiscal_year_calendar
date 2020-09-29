@@ -1,0 +1,25 @@
+{
+  "name": "fiscal_year_calendar-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yc5518/fiscal_year_calendar-nodejs.git"
+  },
+  "author": "Chao <yc5518@hotmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yc5518/fiscal_year_calendar-nodejs/issues"
+  },
+  "homepage": "https://github.com/yc5518/fiscal_year_calendar-nodejs#readme",
+  "dependencies": {
+    "moment": "^2.29.0"
+  }
+}
