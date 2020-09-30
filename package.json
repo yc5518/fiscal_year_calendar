@@ -16,9 +16,9 @@
   "author": "Chao <yc5518@hotmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yc5518/fiscal_year_calendar-nodejs/issues"
+    "url": "https://github.com/yc5518/fiscal_year_calendar/issues"
   },
-  "homepage": "https://github.com/yc5518/fiscal_year_calendar-nodejs#readme",
+  "homepage": "https://github.com/yc5518/fiscal_year_calendar#readme",
   "dependencies": {
     "moment": "^2.29.0"
   }
