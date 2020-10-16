@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/yc5518/fiscal_year_calendar#readme",
   "dependencies": {
-    "moment": "^2.29.0"
+    "moment": "^2.29.0",
+    "moment-recur": "^1.0.7",
+    "moment-timezone": "^0.5.25"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

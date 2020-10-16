@@ -12,5 +12,6 @@ Based on the above customized parameters, it outputs:
 
 * Whole customized year (could be tax year, fiscal year etc.)
 
-* Each week of the year, which can be used as query parameters
+* Date range of each week for a fiscal year, which can be used as query parameters
 
+* Start/end date of a fiscal year
