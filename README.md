@@ -15,3 +15,14 @@ Based on the above customized parameters, it outputs:
 * Date range of each week for a fiscal year, which can be used as query parameters
 
 * Start/end date of a fiscal year
+
+## APIs
+
+* START_OF_WEEK
+    Options for start of a week, now only have options for Monday, Saturday and Sunday
+
+* getWeekOptions(startOfWeek, timezone, year)
+    startOfWeek is a option from START_OF_WEEK, which will be default to be Monday.
+
+* getTimezone(timezone)
+    It's just an encapsulation of moment.tz() from Moment.js for not necessarily importinm Moment.js. Parameter timezone is exactly the same to the one from Moment.js.
