@@ -16,7 +16,13 @@ Based on the above customized parameters, it outputs:
 
 * Start/end date of a fiscal year
 
+## Usage
+
+
+
 ## APIs
+
+### Existings
 
 * START_OF_WEEK
     Options for start of a week, now only have options for Monday, Saturday and Sunday
@@ -26,3 +32,29 @@ Based on the above customized parameters, it outputs:
 
 * getTimezone(timezone)
     It's just an encapsulation of moment.tz() from Moment.js for not necessarily importinm Moment.js. Parameter timezone is exactly the same to the one from Moment.js.
+
+### To be added
+
+* getQuarterOptions
+    Returns quarter options of the fiscal year
+
+* getMonthOptions
+    Returns month options of the fiscal year
+
+* getStartDate
+    Returns start date of the fiscal year
+
+* getEndDate
+    Returns end date of the fiscal year
+
+* getDateNumber
+    Given a date, returns sequence number of the date in the fiscal year
+
+* getFiscalYear
+    Given a date, returns fiscal year number which may differ from calendar year
+
+* getFiscalQuarter
+    Given a date, returns quarter number of the fiscal year
+
+* getFiscalMonth
+    Given a date, returns month number of the fiscal year
