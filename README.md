@@ -1,7 +1,8 @@
 
 # fiscal_year_calendar
   
-The initiative of creating this package is to provide a way to customize a calendar to fit requirements.
+The initiative of creating this package is to dynamically customize a fiscal year or financial year calendar based different date as the first day of a fiscal year.
+E.g: Some organisation would have the first Monday of October to be the start date of a financial year.
   
 The parameters it allows to customize are:
 
