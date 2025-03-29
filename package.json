@@ -1,6 +1,6 @@
 {
-  "name": "fiscal_year_calendar",
-  "version": "0.0.3",
+  "name": "fiscal-year-calendar",
+  "version": "0.0.1",
   "description": "A library to generate fiscal year calendar based on custom fiscal year start date",
   "main": "src/index.js",
   "keywords": [
