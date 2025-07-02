@@ -140,6 +140,8 @@ For more examples, see the [examples directory](./examples).
     FISCAL_YEAR_PRESETS["us-federal"]    // US Federal Government (Oct 1 - Sep 30)
     FISCAL_YEAR_PRESETS["uk-standard"]   // UK Standard (Apr 6 - Apr 5)
     FISCAL_YEAR_PRESETS["australia"]     // Australia (Jul 1 - Jun 30)
+    FISCAL_YEAR_PRESETS["new-zealand"]   // New Zealand (Apr 1 - Mar 31)
+    FISCAL_YEAR_PRESETS["singapore"]     // Singapore (Apr 1 - Mar 31)
     FISCAL_YEAR_PRESETS["calendar-year"] // Calendar Year (Jan 1 - Dec 31)
     // And more...
     ```
