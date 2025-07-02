@@ -2,9 +2,32 @@ module.exports = {
     env: {
         browser: true,
         jest: true,
+        node: true,
     },
-    extends: "airbnb",
+    extends: [
+        "airbnb",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    parser: "@typescript-eslint/parser",
+    plugins: ["@typescript-eslint"],
+    settings: {
+        "import/resolver": {
+            node: {
+                extensions: [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    },
     rules: {
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+                "js": "never",
+                "jsx": "never",
+                "ts": "never",
+                "tsx": "never"
+            }
+        ],
         "linebreak-style": ["error", "unix"],
         "max-len": ["error", { code: 200 }],
         indent: ["error", 4],
@@ -47,7 +70,15 @@ module.exports = {
         "jsx-a11y/no-static-element-interactions": 0,
         "prefer-destructuring": 0,
     },
-    parser: "babel-eslint",
+    overrides: [
+        {
+            files: ["*.ts", "*.tsx"],
+            rules: {
+                "no-undef": "off" // TypeScript already checks this
+            }
+        }
+    ],
+    parser: "@typescript-eslint/parser",
 };
 
 // node node_modules/eslint/bin/eslint.js --fix --parser babel-eslint --ext js --no-eslintrc --rule '"quotes": ["error", "double"]' ./server.js
