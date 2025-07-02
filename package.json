@@ -31,7 +31,9 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "test": "jest --config jest.config.js",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "lint": "eslint . --ext .js,.ts",
+    "coverage": "jest --config jest.config.js --coverage"
   },
   "repository": {
     "type": "git",

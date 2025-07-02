@@ -1,0 +1,23 @@
+# Source files
+src/
+lib/
+tests/
+examples/
+
+# Configuration files
+.github/
+.eslintrc.js
+.gitignore
+.npmignore
+jest.config.js
+tsconfig.json
+tsconfig.esm.json
+
+# Development files
+coverage/
+node_modules/
+*.log
+.DS_Store
+
+# Only include the compiled output
+!dist/
