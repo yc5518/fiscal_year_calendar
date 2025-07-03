@@ -47,7 +47,7 @@
   "homepage": "https://github.com/yc5518/fiscal_year_calendar#readme",
   "dependencies": {
     "moment": "^2.30.1",
-    "moment-timezone": "^0.5.48",
+    "moment-timezone": "^0.6.0",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0"
   },
