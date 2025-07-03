@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     env: {
         browser: true,
         jest: true,
@@ -6,27 +6,26 @@ module.exports = {
     },
     extends: [
         "airbnb",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
     ],
-    parser: "@typescript-eslint/parser",
     plugins: ["@typescript-eslint"],
     settings: {
         "import/resolver": {
             node: {
-                extensions: [".js", ".jsx", ".ts", ".tsx"]
-            }
-        }
+                extensions: [".js", ".jsx", ".ts", ".tsx"],
+            },
+        },
     },
     rules: {
         "import/extensions": [
             "error",
             "ignorePackages",
             {
-                "js": "never",
-                "jsx": "never",
-                "ts": "never",
-                "tsx": "never"
-            }
+                js: "never",
+                jsx: "never",
+                ts: "never",
+                tsx: "never",
+            },
         ],
         "linebreak-style": ["error", "unix"],
         "max-len": ["error", { code: 200 }],
@@ -74,9 +73,9 @@ module.exports = {
         {
             files: ["*.ts", "*.tsx"],
             rules: {
-                "no-undef": "off" // TypeScript already checks this
+                "no-undef": "off", // TypeScript already checks this
             }
-        }
+        },
     ],
     parser: "@typescript-eslint/parser",
 };
