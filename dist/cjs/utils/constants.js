@@ -69,9 +69,15 @@ exports.FISCAL_YEAR_PRESETS = {
     },
     'new-zealand': {
         name: 'New Zealand',
-        fyStartMonth: 6, // July
+        fyStartMonth: 3, // April
         fyStartDay: 1,
-        description: 'New Zealand fiscal year (Jul 1 - Jun 30)',
+        description: 'New Zealand fiscal year (Apr 1 - Mar 31)',
+    },
+    'singapore': {
+        name: 'Singapore',
+        fyStartMonth: 3, // April
+        fyStartDay: 1,
+        description: 'Singapore fiscal year (Apr 1 - Mar 31)',
     },
     'calendar-year': {
         name: 'Calendar Year',
