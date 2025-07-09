@@ -36,8 +36,8 @@ jobs:
       
     - name: Check code coverage
       run: npm run coverage || echo "Coverage not configured"
-
-   publish:
+   
+  publish:
     needs: build-and-test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
