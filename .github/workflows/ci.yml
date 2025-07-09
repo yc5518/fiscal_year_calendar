@@ -37,26 +37,33 @@ jobs:
     - name: Check code coverage
       run: npm run coverage || echo "Coverage not configured"
 
-  publish:
+   publish:
     needs: build-and-test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18.x'
         registry-url: 'https://registry.npmjs.org'
-    
+
     - name: Install dependencies
       run: npm ci
-      
+
     - name: Build
       run: npm run build
-      
+
+    - name: Bump version
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        npm version patch -m "ci: bump version to %s [skip ci]"
+        git push --follow-tags
+
     - name: Publish to npm
       run: npm publish
       env:
