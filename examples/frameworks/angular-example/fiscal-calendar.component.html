@@ -1,0 +1,106 @@
+<div class="fiscal-calendar-container">
+  <div *ngIf="calendarData" class="fiscal-calendar">
+    <div class="calendar-header">
+      <h2>{{ calendarData.preset.name }} Fiscal Year {{ calendarData.fiscalYear }}</h2>
+      <p>
+        <strong>Start Date:</strong> {{ formatDate(calendarData.startDate) }} | 
+        <strong>End Date:</strong> {{ formatDate(calendarData.endDate) }}
+      </p>
+      <div class="export-buttons">
+        <button (click)="exportToCSV()" class="btn btn-primary">Export to CSV</button>
+        <button (click)="exportToJSON()" class="btn btn-secondary">Export to JSON</button>
+      </div>
+    </div>
+    
+    <div class="calendar-tabs">
+      <ul class="nav nav-tabs">
+        <li class="nav-item" *ngFor="let tab of tabs">
+          <a class="nav-link" 
+             [class.active]="isTabActive(tab.id)" 
+             (click)="setActiveTab(tab.id)">
+            {{ tab.name }}
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="tab-content">
+      <!-- Quarters Tab -->
+      <div *ngIf="activeTab === 'quarters'" class="tab-pane active">
+        <h3>Quarters</h3>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Quarter</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Duration (Days)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let quarter of calendarData.quarters">
+              <td>Q{{ quarter.quarter }}</td>
+              <td>{{ formatDate(quarter.startTime) }}</td>
+              <td>{{ formatDate(quarter.endTime) }}</td>
+              <td>{{ calculateDays(quarter.startTime, quarter.endTime) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Months Tab -->
+      <div *ngIf="activeTab === 'months'" class="tab-pane active">
+        <h3>Months</h3>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Name</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Duration (Days)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let month of localizedMonths">
+              <td>{{ month.month }}</td>
+              <td>{{ month.name }}</td>
+              <td>{{ formatDate(month.startTime) }}</td>
+              <td>{{ formatDate(month.endTime) }}</td>
+              <td>{{ calculateDays(month.startTime, month.endTime) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Weeks Tab -->
+      <div *ngIf="activeTab === 'weeks'" class="tab-pane active">
+        <h3>Weeks</h3>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Duration (Days)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let week of calendarData.weeks">
+                <td>{{ week.week }}</td>
+                <td>{{ formatDate(week.startTime) }}</td>
+                <td>{{ formatDate(week.endTime) }}</td>
+                <td>{{ calculateDays(week.startTime, week.endTime) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!calendarData" class="loading">
+    <p>Loading fiscal calendar data...</p>
+  </div>
+</div>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiscal Year Timeline Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .controls select, .controls input {
+            padding: 8px;
+            margin-right: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .timeline-container {
+            margin-top: 30px;
+            position: relative;
+        }
+        .timeline {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .timeline-header {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+        .timeline-header-cell {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-right: 1px solid #ddd;
+            min-width: 100px;
+        }
+        .timeline-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            height: 50px;
+        }
+        .timeline-row-label {
+            width: 150px;
+            padding: 10px;
+            font-weight: bold;
+            background-color: #f8f9fa;
+            border-right: 1px solid #ddd;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+        .timeline-row-content {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        .timeline-item {
+            position: absolute;
+            height: 30px;
+            top: 10px;
+            border-radius: 4px;
+            padding: 5px;
+            box-sizing: border-box;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+        }
+        .timeline-item:hover {
+            opacity: 0.9;
+            z-index: 100;
+        }
+        .timeline-item.quarter {
+            background-color: #3498db;
+        }
+        .timeline-item.month {
+            background-color: #2ecc71;
+        }
+        .timeline-item.week {
+            background-color: #9b59b6;
+            height: 20px;
+            top: 15px;
+        }
+        .timeline-item.today {
+            background-color: #e74c3c;
+            width: 2px !important;
+            z-index: 50;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            display: none;
+        }
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 4px;
+        }
+        .quarter-color {
+            background-color: #3498db;
+        }
+        .month-color {
+            background-color: #2ecc71;
+        }
+        .week-color {
+            background-color: #9b59b6;
+        }
+        .today-color {
+            background-color: #e74c3c;
+        }
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .info-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .info-item {
+            display: flex;
+        }
+        .info-label {
+            font-weight: bold;
+            margin-right: 5px;
+            min-width: 150px;
+        }
+        .view-selector {
+            margin-bottom: 15px;
+        }
+        .view-selector button {
+            margin-right: 10px;
+        }
+        .view-selector button.active {
+            background-color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fiscal Year Timeline Chart</h1>
+        
+        <div class="controls">
+            <label for="fiscal-year">Fiscal Year:</label>
+            <input type="number" id="fiscal-year" min="2000" max="2100" value="2025">
+            
+            <label for="preset">Preset:</label>
+            <select id="preset">
+                <option value="custom">Custom</option>
+                <option value="us-federal" selected>US Federal</option>
+                <option value="uk-standard">UK Standard</option>
+                <option value="australia">Australia</option>
+                <option value="calendar-year">Calendar Year</option>
+                <option value="retail-standard">Retail Standard</option>
+            </select>
+            
+            <button id="generate-btn">Generate Timeline</button>
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-title">Fiscal Year Information</div>
+            <div class="info-content">
+                <div class="info-item">
+                    <div class="info-label">Fiscal Year:</div>
+                    <div id="info-fiscal-year">2025</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Start Date:</div>
+                    <div id="info-start-date">October 1, 2024</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">End Date:</div>
+                    <div id="info-end-date">September 30, 2025</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total Weeks:</div>
+                    <div id="info-total-weeks">52</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="view-selector">
+            <button class="view-btn active" data-view="all">All</button>
+            <button class="view-btn" data-view="quarters">Quarters</button>
+            <button class="view-btn" data-view="months">Months</button>
+            <button class="view-btn" data-view="weeks">Weeks</button>
+        </div>
+        
+        <div class="timeline-container">
+            <div class="timeline" id="timeline">
+                <!-- Timeline will be generated here -->
+            </div>
+        </div>
+        
+        <div class="tooltip" id="tooltip"></div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color quarter-color"></div>
+                <div>Quarter</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color month-color"></div>
+                <div>Month</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color week-color"></div>
+                <div>Week</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color today-color"></div>
+                <div>Today</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="../../dist/cjs/index.js"></script>
+    <script>
+        // Check if the fiscal-year-calendar library is loaded
+        if (typeof fiscalYear === 'undefined') {
+            // If not loaded from dist, create a mock object for demo purposes
+            console.warn('Fiscal Year Calendar library not loaded. Using mock data for demo.');
+            fiscalYear = {
+                FISCAL_YEAR_PRESETS: {
+                    'us-federal': { fyStartMonth: 9, fyStartDay: 1, name: 'US Federal Government' },
+                    'uk-standard': { fyStartMonth: 3, fyStartDay: 6, name: 'UK Standard' },
+                    'australia': { fyStartMonth: 6, fyStartDay: 1, name: 'Australia' },
+                    'calendar-year': { fyStartMonth: 0, fyStartDay: 1, name: 'Calendar Year' },
+                    'retail-standard': { fyStartMonth: 1, fyStartDay: 1, name: 'Retail Standard' }
+                },
+                START_OF_WEEK: {
+                    monday: { value: 'monday' }
+                },
+                getMonthOptions: function(startOfWeek, timezone, year, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    const months = [];
+                    const startDate = new Date(year - 1, fyStartMonth, fyStartDay);
+                    
+                    for (let i = 0; i < 12; i++) {
+                        const monthDate = new Date(startDate);
+                        monthDate.setMonth(startDate.getMonth() + i);
+                        
+                        const endMonthDate = new Date(monthDate);
+                        endMonthDate.setMonth(monthDate.getMonth() + 1);
+                        endMonthDate.setDate(0); // Last day of month
+                        
+                        months.push({
+                            month: (i + 1).toString(),
+                            name: new Date(monthDate).toLocaleString('default', { month: 'long' }),
+                            startTime: monthDate.toString(),
+                            endTime: endMonthDate.toString()
+                        });
+                    }
+                    
+                    return months;
+                },
+                getQuarterOptions: function(startOfWeek, timezone, year, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    const quarters = [];
+                    const startDate = new Date(year - 1, fyStartMonth, fyStartDay);
+                    
+                    for (let i = 0; i < 4; i++) {
+                        const quarterStartDate = new Date(startDate);
+                        quarterStartDate.setMonth(startDate.getMonth() + (i * 3));
+                        
+                        const quarterEndDate = new Date(quarterStartDate);
+                        quarterEndDate.setMonth(quarterStartDate.getMonth() + 3);
+                        quarterEndDate.setDate(0); // Last day of month
+                        
+                        quarters.push({
+                            quarter: (i + 1).toString(),
+                            startTime: quarterStartDate.toString(),
+                            endTime: quarterEndDate.toString()
+                        });
+                    }
+                    
+                    return quarters;
+                },
+                getWeekOptions: function(startOfWeek, timezone, year, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    const weeks = [];
+                    const startDate = new Date(year - 1, fyStartMonth, fyStartDay);
+                    
+                    for (let i = 0; i < 52; i++) {
+                        const weekStartDate = new Date(startDate);
+                        weekStartDate.setDate(startDate.getDate() + (i * 7));
+                        
+                        const weekEndDate = new Date(weekStartDate);
+                        weekEndDate.setDate(weekStartDate.getDate() + 6);
+                        
+                        weeks.push({
+                            week: (i + 1).toString(),
+                            startTime: weekStartDate.toString(),
+                            endTime: weekEndDate.toString()
+                        });
+                    }
+                    
+                    return weeks;
+                },
+                getStartDate: function(timezone, year, startOfWeek, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    return {
+                        format: function(format) {
+                            const date = new Date(year - 1, fyStartMonth, fyStartDay);
+                            return date.toLocaleDateString();
+                        }
+                    };
+                },
+                getEndDate: function(timezone, year, startOfWeek, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    return {
+                        format: function(format) {
+                            const date = new Date(year, fyStartMonth, fyStartDay - 1);
+                            return date.toLocaleDateString();
+                        }
+                    };
+                },
+                getFiscalYearWithPreset: function(presetKey, timezone, year) {
+                    const preset = this.FISCAL_YEAR_PRESETS[presetKey];
+                    const startOfWeek = this.START_OF_WEEK.monday.value;
+                    
+                    return {
+                        preset: preset,
+                        fiscalYear: year,
+                        startDate: this.getStartDate(timezone, year, startOfWeek, preset.fyStartMonth, preset.fyStartDay),
+                        endDate: this.getEndDate(timezone, year, startOfWeek, preset.fyStartMonth, preset.fyStartDay),
+                        weeks: this.getWeekOptions(startOfWeek, timezone, year, preset.fyStartMonth, preset.fyStartDay),
+                        quarters: this.getQuarterOptions(startOfWeek, timezone, year, preset.fyStartMonth, preset.fyStartDay),
+                        months: this.getMonthOptions(startOfWeek, timezone, year, preset.fyStartMonth, preset.fyStartDay)
+                    };
+                }
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-btn');
+            generateBtn.addEventListener('click', generateTimeline);
+            
+            // Generate timeline on page load
+            generateTimeline();
+            
+            // Handle view selection
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    updateTimelineView(this.dataset.view);
+                });
+            });
+        });
+        
+        function generateTimeline() {
+            const year = parseInt(document.getElementById('fiscal-year').value);
+            const presetKey = document.getElementById('preset').value;
+            
+            // Get fiscal year information using preset
+            const fyData = fiscalYear.getFiscalYearWithPreset(presetKey, null, year);
+            
+            // Update info panel
+            document.getElementById('info-fiscal-year').textContent = fyData.fiscalYear;
+            document.getElementById('info-start-date').textContent = fyData.startDate.format('MMMM D, YYYY');
+            document.getElementById('info-end-date').textContent = fyData.endDate.format('MMMM D, YYYY');
+            document.getElementById('info-total-weeks').textContent = fyData.weeks.length;
+            
+            // Generate timeline
+            createTimeline(fyData);
+            
+            // Set initial view
+            const activeView = document.querySelector('.view-btn.active').dataset.view;
+            updateTimelineView(activeView);
+        }
+        
+        function createTimeline(fyData) {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = '';
+            
+            // Calculate total days for scaling
+            const startDate = new Date(fyData.weeks[0].startTime);
+            const endDate = new Date(fyData.weeks[fyData.weeks.length - 1].endTime);
+            const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const dayWidth = 20; // pixels per day
+            const timelineWidth = totalDays * dayWidth;
+            
+            // Create header with months
+            const header = document.createElement('div');
+            header.className = 'timeline-header';
+            
+            // Add label column
+            const labelHeader = document.createElement('div');
+            labelHeader.className = 'timeline-row-label';
+            labelHeader.textContent = 'Period';
+            header.appendChild(labelHeader);
+            
+            // Add content column for the header
+            const headerContent = document.createElement('div');
+            headerContent.className = 'timeline-row-content';
+            headerContent.style.width = `${timelineWidth}px`;
+            
+            // Add month markers to header
+            fyData.months.forEach(month => {
+                const monthStart = new Date(month.startTime);
+                const monthEnd = new Date(month.endTime);
+                const monthDays = Math.ceil((monthEnd - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+                const monthWidth = monthDays * dayWidth;
+                
+                const monthMarker = document.createElement('div');
+                monthMarker.className = 'timeline-header-cell';
+                monthMarker.textContent = month.name;
+                monthMarker.style.width = `${monthWidth}px`;
+                monthMarker.style.minWidth = `${monthWidth}px`;
+                headerContent.appendChild(monthMarker);
+            });
+            
+            header.appendChild(headerContent);
+            timeline.appendChild(header);
+            
+            // Create rows for quarters, months, and weeks
+            
+            // Quarters row
+            const quartersRow = createTimelineRow('Quarters', fyData.quarters, startDate, dayWidth, 'quarter');
+            timeline.appendChild(quartersRow);
+            
+            // Months row
+            const monthsRow = createTimelineRow('Months', fyData.months, startDate, dayWidth, 'month');
+            timeline.appendChild(monthsRow);
+            
+            // Weeks row
+            const weeksRow = createTimelineRow('Weeks', fyData.weeks, startDate, dayWidth, 'week');
+            timeline.appendChild(weeksRow);
+            
+            // Add today marker if within the fiscal year
+            const today = new Date();
+            if (today >= startDate && today <= endDate) {
+                const todayOffset = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24)) * dayWidth;
+                
+                // Add today marker to each row
+                document.querySelectorAll('.timeline-row-content').forEach(content => {
+                    const todayMarker = document.createElement('div');
+                    todayMarker.className = 'timeline-item today';
+                    todayMarker.style.left = `${todayOffset}px`;
+                    todayMarker.style.height = '100%';
+                    todayMarker.style.top = '0';
+                    todayMarker.title = 'Today';
+                    content.appendChild(todayMarker);
+                });
+            }
+            
+            // Setup tooltip
+            setupTooltip();
+        }
+        
+        function createTimelineRow(label, items, startDate, dayWidth, itemClass) {
+            const row = document.createElement('div');
+            row.className = 'timeline-row';
+            row.dataset.type = itemClass;
+            
+            // Add label
+            const rowLabel = document.createElement('div');
+            rowLabel.className = 'timeline-row-label';
+            rowLabel.textContent = label;
+            row.appendChild(rowLabel);
+            
+            // Add content
+            const rowContent = document.createElement('div');
+            rowContent.className = 'timeline-row-content';
+            
+            // Add items
+            items.forEach(item => {
+                const itemStart = new Date(item.startTime);
+                const itemEnd = new Date(item.endTime);
+                
+                const dayOffset = Math.ceil((itemStart - startDate) / (1000 * 60 * 60 * 24));
+                const itemDays = Math.ceil((itemEnd - itemStart) / (1000 * 60 * 60 * 24)) + 1;
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = `timeline-item ${itemClass}`;
+                itemElement.style.left = `${dayOffset * dayWidth}px`;
+                itemElement.style.width = `${itemDays * dayWidth}px`;
+                
+                // Set item text based on type
+                if (itemClass === 'quarter') {
+                    itemElement.textContent = `Q${item.quarter}`;
+                } else if (itemClass === 'month') {
+                    itemElement.textContent = item.name;
+                } else if (itemClass === 'week') {
+                    itemElement.textContent = `W${item.week}`;
+                }
+                
+                // Store item data for tooltip
+                itemElement.dataset.start = new Date(item.startTime).toLocaleDateString();
+                itemElement.dataset.end = new Date(item.endTime).toLocaleDateString();
+                itemElement.dataset.type = itemClass;
+                if (itemClass === 'quarter') {
+                    itemElement.dataset.label = `Quarter ${item.quarter}`;
+                } else if (itemClass === 'month') {
+                    itemElement.dataset.label = item.name;
+                } else if (itemClass === 'week') {
+                    itemElement.dataset.label = `Week ${item.week}`;
+                }
+                
+                rowContent.appendChild(itemElement);
+            });
+            
+            row.appendChild(rowContent);
+            return row;
+        }
+        
+        function setupTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                if (item.classList.contains('today')) return;
+                
+                item.addEventListener('mouseover', function(e) {
+                    const type = this.dataset.type;
+                    const label = this.dataset.label;
+                    const start = this.dataset.start;
+                    const end = this.dataset.end;
+                    
+                    tooltip.innerHTML = `
+                        <div><strong>${label}</strong></div>
+                        <div>Start: ${start}</div>
+                        <div>End: ${end}</div>
+                    `;
+                    
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = `${e.pageX + 10}px`;
+                    tooltip.style.top = `${e.pageY + 10}px`;
+                });
+                
+                item.addEventListener('mousemove', function(e) {
+                    tooltip.style.left = `${e.pageX + 10}px`;
+                    tooltip.style.top = `${e.pageY + 10}px`;
+                });
+                
+                item.addEventListener('mouseout', function() {
+                    tooltip.style.display = 'none';
+                });
+            });
+        }
+        
+        function updateTimelineView(view) {
+            const rows = document.querySelectorAll('.timeline-row');
+            
+            if (view === 'all') {
+                rows.forEach(row => row.style.display = 'flex');
+            } else {
+                rows.forEach(row => {
+                    if (row.dataset.type === view.slice(0, -1)) { // Remove 's' from end
+                        row.style.display = 'flex';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -59,3 +59,27 @@ export {
 export {
     getFiscalYearWithPreset,
 } from "./calendar/presets";
+
+// Export export functionality
+export {
+    exportToCSV,
+    exportToJSON,
+    exportToICal,
+    exportToHTML,
+} from "./utils/exports";
+
+// Export localization functionality
+export {
+    setLocale,
+    getLocale,
+    getAvailableLocales,
+    formatLocalizedDate,
+    getLocalizedMonthName,
+    getLocalizedDayName,
+    localizeMonthOptions,
+    formatLocalizedDateRange,
+    localizeWeekOptions,
+    localizeQuarterOptions,
+    getLocalizedQuarterName,
+    AVAILABLE_LOCALES,
+} from "./utils/localization";

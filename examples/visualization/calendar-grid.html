@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiscal Year Calendar Grid</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .controls select, .controls input {
+            padding: 8px;
+            margin-right: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .quarter {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .quarter-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        .month {
+            margin-bottom: 15px;
+        }
+        .month-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #3498db;
+        }
+        .weeks {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .week-day {
+            font-size: 12px;
+            text-align: center;
+            padding: 2px;
+            background-color: #e9ecef;
+        }
+        .day {
+            height: 25px;
+            font-size: 12px;
+            text-align: center;
+            padding: 2px;
+            border: 1px solid #ddd;
+            background-color: white;
+        }
+        .day.current-month {
+            background-color: #e3f2fd;
+        }
+        .day.today {
+            background-color: #bbdefb;
+            font-weight: bold;
+            border: 2px solid #2196f3;
+        }
+        .day.holiday {
+            background-color: #ffcdd2;
+        }
+        .day.weekend {
+            background-color: #f5f5f5;
+        }
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+        }
+        .current-month-color {
+            background-color: #e3f2fd;
+        }
+        .today-color {
+            background-color: #bbdefb;
+            border: 2px solid #2196f3;
+        }
+        .holiday-color {
+            background-color: #ffcdd2;
+        }
+        .weekend-color {
+            background-color: #f5f5f5;
+        }
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .info-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .info-item {
+            display: flex;
+        }
+        .info-label {
+            font-weight: bold;
+            margin-right: 5px;
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fiscal Year Calendar Grid</h1>
+        
+        <div class="controls">
+            <label for="fiscal-year">Fiscal Year:</label>
+            <input type="number" id="fiscal-year" min="2000" max="2100" value="2025">
+            
+            <label for="start-month">Start Month:</label>
+            <select id="start-month">
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9" selected>October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+            </select>
+            
+            <label for="start-day">Start Day:</label>
+            <input type="number" id="start-day" min="1" max="31" value="1">
+            
+            <label for="start-of-week">Start of Week:</label>
+            <select id="start-of-week">
+                <option value="monday">Monday</option>
+                <option value="sunday">Sunday</option>
+                <option value="saturday">Saturday</option>
+            </select>
+            
+            <label for="preset">Preset:</label>
+            <select id="preset">
+                <option value="custom">Custom</option>
+                <option value="us-federal">US Federal</option>
+                <option value="uk-standard">UK Standard</option>
+                <option value="australia">Australia</option>
+                <option value="calendar-year">Calendar Year</option>
+                <option value="retail-standard">Retail Standard</option>
+            </select>
+            
+            <button id="generate-btn">Generate Calendar</button>
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-title">Fiscal Year Information</div>
+            <div class="info-content">
+                <div class="info-item">
+                    <div class="info-label">Fiscal Year:</div>
+                    <div id="info-fiscal-year">2025</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Start Date:</div>
+                    <div id="info-start-date">October 1, 2024</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">End Date:</div>
+                    <div id="info-end-date">September 30, 2025</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total Weeks:</div>
+                    <div id="info-total-weeks">52</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- Calendar will be generated here -->
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color current-month-color"></div>
+                <div>Current Month</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color today-color"></div>
+                <div>Today</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color holiday-color"></div>
+                <div>Holiday</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color weekend-color"></div>
+                <div>Weekend</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="../../dist/cjs/index.js"></script>
+    <script>
+        // Check if the fiscal-year-calendar library is loaded
+        if (typeof fiscalYear === 'undefined') {
+            // If not loaded from dist, create a mock object for demo purposes
+            console.warn('Fiscal Year Calendar library not loaded. Using mock data for demo.');
+            fiscalYear = {
+                FISCAL_YEAR_PRESETS: {
+                    'us-federal': { fyStartMonth: 9, fyStartDay: 1 },
+                    'uk-standard': { fyStartMonth: 3, fyStartDay: 6 },
+                    'australia': { fyStartMonth: 6, fyStartDay: 1 },
+                    'calendar-year': { fyStartMonth: 0, fyStartDay: 1 },
+                    'retail-standard': { fyStartMonth: 1, fyStartDay: 1 }
+                },
+                START_OF_WEEK: {
+                    monday: { value: 'monday' },
+                    sunday: { value: 'sunday' },
+                    saturday: { value: 'saturday' }
+                },
+                getMonthOptions: function(startOfWeek, timezone, year, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    const months = [];
+                    const startDate = new Date(year - 1, fyStartMonth, fyStartDay);
+                    
+                    for (let i = 0; i < 12; i++) {
+                        const monthDate = new Date(startDate);
+                        monthDate.setMonth(startDate.getMonth() + i);
+                        
+                        const endMonthDate = new Date(monthDate);
+                        endMonthDate.setMonth(monthDate.getMonth() + 1);
+                        endMonthDate.setDate(0); // Last day of month
+                        
+                        months.push({
+                            month: (i + 1).toString(),
+                            name: new Date(monthDate).toLocaleString('default', { month: 'long' }),
+                            startTime: monthDate.toString(),
+                            endTime: endMonthDate.toString()
+                        });
+                    }
+                    
+                    return months;
+                },
+                getQuarterOptions: function(startOfWeek, timezone, year, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    const quarters = [];
+                    const startDate = new Date(year - 1, fyStartMonth, fyStartDay);
+                    
+                    for (let i = 0; i < 4; i++) {
+                        const quarterStartDate = new Date(startDate);
+                        quarterStartDate.setMonth(startDate.getMonth() + (i * 3));
+                        
+                        const quarterEndDate = new Date(quarterStartDate);
+                        quarterEndDate.setMonth(quarterStartDate.getMonth() + 3);
+                        quarterEndDate.setDate(0); // Last day of month
+                        
+                        quarters.push({
+                            quarter: (i + 1).toString(),
+                            startTime: quarterStartDate.toString(),
+                            endTime: quarterEndDate.toString()
+                        });
+                    }
+                    
+                    return quarters;
+                },
+                getStartDate: function(timezone, year, startOfWeek, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    return {
+                        format: function(format) {
+                            const date = new Date(year - 1, fyStartMonth, fyStartDay);
+                            return date.toLocaleDateString();
+                        }
+                    };
+                },
+                getEndDate: function(timezone, year, startOfWeek, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    return {
+                        format: function(format) {
+                            const date = new Date(year, fyStartMonth, fyStartDay - 1);
+                            return date.toLocaleDateString();
+                        }
+                    };
+                },
+                getWeekOptions: function(startOfWeek, timezone, year, fyStartMonth, fyStartDay) {
+                    // Mock implementation for demo
+                    return new Array(52).fill(0).map((_, i) => ({
+                        week: (i + 1).toString(),
+                        startTime: new Date().toString(),
+                        endTime: new Date().toString()
+                    }));
+                }
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-btn');
+            generateBtn.addEventListener('click', generateCalendar);
+            
+            // Generate calendar on page load
+            generateCalendar();
+            
+            // Handle preset selection
+            document.getElementById('preset').addEventListener('change', function(e) {
+                const preset = e.target.value;
+                if (preset !== 'custom') {
+                    const presetConfig = fiscalYear.FISCAL_YEAR_PRESETS[preset];
+                    document.getElementById('start-month').value = presetConfig.fyStartMonth;
+                    document.getElementById('start-day').value = presetConfig.fyStartDay;
+                }
+            });
+        });
+        
+        function generateCalendar() {
+            const year = parseInt(document.getElementById('fiscal-year').value);
+            const startMonth = parseInt(document.getElementById('start-month').value);
+            const startDay = parseInt(document.getElementById('start-day').value);
+            const startOfWeek = document.getElementById('start-of-week').value;
+            
+            // Get fiscal year information
+            const startDate = fiscalYear.getStartDate(null, year, startOfWeek, startMonth, startDay);
+            const endDate = fiscalYear.getEndDate(null, year, startOfWeek, startMonth, startDay);
+            const quarters = fiscalYear.getQuarterOptions(startOfWeek, null, year, startMonth, startDay);
+            const months = fiscalYear.getMonthOptions(startOfWeek, null, year, startMonth, startDay);
+            const weeks = fiscalYear.getWeekOptions(startOfWeek, null, year, startMonth, startDay);
+            
+            // Update info panel
+            document.getElementById('info-fiscal-year').textContent = year;
+            document.getElementById('info-start-date').textContent = startDate.format('MMMM D, YYYY');
+            document.getElementById('info-end-date').textContent = endDate.format('MMMM D, YYYY');
+            document.getElementById('info-total-weeks').textContent = weeks.length;
+            
+            // Generate calendar grid
+            const calendarGrid = document.getElementById('calendar-grid');
+            calendarGrid.innerHTML = '';
+            
+            // Create quarters
+            quarters.forEach(quarter => {
+                const quarterDiv = document.createElement('div');
+                quarterDiv.className = 'quarter';
+                
+                // Quarter header
+                const quarterHeader = document.createElement('div');
+                quarterHeader.className = 'quarter-header';
+                quarterHeader.textContent = `Quarter ${quarter.quarter}`;
+                quarterDiv.appendChild(quarterHeader);
+                
+                // Get months in this quarter
+                const quarterMonths = months.filter(month => {
+                    const monthStart = new Date(month.startTime);
+                    const quarterStart = new Date(quarter.startTime);
+                    const quarterEnd = new Date(quarter.endTime);
+                    return monthStart >= quarterStart && monthStart <= quarterEnd;
+                });
+                
+                // Create months
+                quarterMonths.forEach(month => {
+                    const monthDiv = document.createElement('div');
+                    monthDiv.className = 'month';
+                    
+                    // Month header
+                    const monthHeader = document.createElement('div');
+                    monthHeader.className = 'month-header';
+                    monthHeader.textContent = month.name;
+                    monthDiv.appendChild(monthHeader);
+                    
+                    // Create calendar for this month
+                    const monthStart = new Date(month.startTime);
+                    const monthEnd = new Date(month.endTime);
+                    
+                    // Create week days header
+                    const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    if (startOfWeek === 'sunday') {
+                        weekDays.unshift(weekDays.pop());
+                    } else if (startOfWeek === 'saturday') {
+                        weekDays.unshift(weekDays.pop());
+                        weekDays.unshift(weekDays.pop());
+                    }
+                    
+                    const weeksDiv = document.createElement('div');
+                    weeksDiv.className = 'weeks';
+                    
+                    // Add week day headers
+                    weekDays.forEach(day => {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.className = 'week-day';
+                        dayDiv.textContent = day;
+                        weeksDiv.appendChild(dayDiv);
+                    });
+                    
+                    // Get first day of month
+                    let firstDay = new Date(monthStart);
+                    
+                    // Adjust to start of week
+                    let dayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, ...
+                    if (startOfWeek === 'monday') {
+                        dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                    } else if (startOfWeek === 'saturday') {
+                        dayOfWeek = (dayOfWeek + 1) % 7;
+                    }
+                    
+                    // Add empty cells for days before the first day of month
+                    for (let i = 0; i < dayOfWeek; i++) {
+                        const emptyDay = document.createElement('div');
+                        emptyDay.className = 'day';
+                        weeksDiv.appendChild(emptyDay);
+                    }
+                    
+                    // Add days of month
+                    const today = new Date();
+                    for (let day = 1; day <= monthEnd.getDate(); day++) {
+                        const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), day);
+                        const dayDiv = document.createElement('div');
+                        dayDiv.className = 'day current-month';
+                        dayDiv.textContent = day;
+                        
+                        // Check if weekend
+                        const dayOfWeek = date.getDay();
+                        if (dayOfWeek === 0 || dayOfWeek === 6) {
+                            dayDiv.classList.add('weekend');
+                        }
+                        
+                        // Check if today
+                        if (date.getDate() === today.getDate() && 
+                            date.getMonth() === today.getMonth() && 
+                            date.getFullYear() === today.getFullYear()) {
+                            dayDiv.classList.add('today');
+                        }
+                        
+                        weeksDiv.appendChild(dayDiv);
+                    }
+                    
+                    monthDiv.appendChild(weeksDiv);
+                    quarterDiv.appendChild(monthDiv);
+                });
+                
+                calendarGrid.appendChild(quarterDiv);
+            });
+        }
+    </script>
+</body>
+</html>

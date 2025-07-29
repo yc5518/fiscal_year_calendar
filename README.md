@@ -21,23 +21,31 @@ Based on the above customized parameters, it outputs:
 
 * Fiscal year, quarter, month, and day number for any given date
 
-## What's New in Version 2.0.0
+## What's New in Version 3.0.0
 
 This major update brings significant enhancements to the fiscal-year-calendar library:
 
-1. **TypeScript Support**: The entire library has been rewritten in TypeScript, providing better type safety and developer experience.
+1. **Enhanced Documentation**: Expanded documentation with more real-world examples, common use cases, and interactive demos.
 
-2. **Special Calendar Systems**: Added support for retail calendar systems (4-4-5, 4-5-4, 5-4-4) as well as bi-weekly and semi-monthly periods.
+2. **Visualization Components**: Simple visualization components for displaying fiscal calendars in web applications, including calendar grid and timeline chart views.
 
-3. **Holiday Management**: New functions to add, track, and manage holidays, including built-in holiday sets for various countries.
+3. **Fiscal Year Presets**: Added common fiscal year presets for different countries and industries (US Federal Government, UK, Australia, Retail Standard, etc.).
 
-4. **Date Range Analysis**: Enhanced date range utilities for fiscal year-to-date, quarter-to-date, and month-to-date calculations.
+4. **Localization**: Enhanced support for different languages and regional formatting of dates.
 
-5. **Period Comparisons**: New functions for comparing fiscal periods and calculating year-over-year changes.
+5. **Export Functionality**: Added the ability to export fiscal calendars to common formats like CSV, iCal, and JSON.
 
-6. **Fiscal Year Presets**: Built-in presets for common fiscal year configurations (US Federal, UK, Australia, etc.).
+6. **Framework Integration Examples**: Provided examples of integrating with popular frameworks like React, Vue, and Angular.
 
-7. **Improved Documentation**: Comprehensive documentation and examples for all functions.
+7. **TypeScript Support**: The entire library has been rewritten in TypeScript, providing better type safety and developer experience.
+
+8. **Special Calendar Systems**: Added support for retail calendar systems (4-4-5, 4-5-4, 5-4-4) as well as bi-weekly and semi-monthly periods.
+
+9. **Holiday Management**: New functions to add, track, and manage holidays, including built-in holiday sets for various countries.
+
+10. **Date Range Analysis**: Enhanced date range utilities for fiscal year-to-date, quarter-to-date, and month-to-date calculations.
+
+11. **Period Comparisons**: New functions for comparing fiscal periods and calculating year-over-year changes.
 
 ## Installation
 
@@ -439,9 +447,206 @@ For more examples, see the [examples directory](./examples).
     
     Returns a moment object for the specified timezone.
 
+### Localization Functions
+
+- **setLocale(locale)**
+
+    Sets the locale for date formatting.
+    
+    Parameters:
+    - locale: Locale string (e.g., "en", "fr", "es", "de", etc.)
+    
+    Returns the current locale.
+
+- **getLocale()**
+
+    Gets the current locale.
+    
+    Returns the current locale string.
+
+- **getAvailableLocales()**
+
+    Gets a list of available locales.
+    
+    Returns an array of locale strings.
+
+- **localizeMonthOptions(months, locale)**
+
+    Localizes month names in month options.
+    
+    Parameters:
+    - months: Array of month objects from getMonthOptions
+    - locale: Locale string
+    
+    Returns an array of month objects with localized month names.
+
+### Export Functions
+
+- **exportToCSV(data, options)**
+
+    Exports data to CSV format.
+    
+    Parameters:
+    - data: Array of objects to export
+    - options: Export options (optional)
+    
+    Returns a CSV string.
+
+- **exportToJSON(data, options)**
+
+    Exports data to JSON format.
+    
+    Parameters:
+    - data: Array of objects to export
+    - options: Export options (optional, includes pretty formatting)
+    
+    Returns a JSON string.
+
+- **exportToICalendar(data, options)**
+
+    Exports data to iCalendar format.
+    
+    Parameters:
+    - data: Array of objects with startTime and endTime properties
+    - options: Export options (optional, includes summary and description)
+    
+    Returns an iCalendar string.
+
 ## Examples
 
-See the [examples directory](./examples) for more examples of how to use this library.
+### Visualization Components
+
+The library includes visualization components for displaying fiscal calendars in web applications:
+
+```html
+<!-- Include the library -->
+<script src="path/to/fiscal-year-calendar/dist/cjs/index.js"></script>
+
+<!-- Use the visualization components -->
+<div id="fiscal-calendar"></div>
+
+<script>
+  // Initialize a calendar grid
+  const calendar = new FiscalCalendarGrid('#fiscal-calendar', {
+    year: 2025,
+    presetKey: 'us-federal',
+    startOfWeek: 'monday'
+  });
+  
+  // Render the calendar
+  calendar.render();
+</script>
+```
+
+For more examples of visualization components, see the [visualization examples](./examples/visualization).
+
+### Framework Integration
+
+The library can be easily integrated with popular JavaScript frameworks:
+
+#### React
+
+```jsx
+import React from 'react';
+import { FiscalCalendarTable } from 'fiscal-year-calendar/react';
+
+function App() {
+  return (
+    <FiscalCalendarTable 
+      presetKey="us-federal"
+      year={2025}
+      showQuarters={true}
+      showMonths={true}
+    />
+  );
+}
+```
+
+#### Vue.js
+
+```vue
+<template>
+  <fiscal-calendar-vue 
+    :preset-key="'us-federal'" 
+    :fiscal-year="2025"
+  />
+</template>
+
+<script>
+import { FiscalCalendarVue } from 'fiscal-year-calendar/vue';
+
+export default {
+  components: {
+    FiscalCalendarVue
+  }
+}
+</script>
+```
+
+#### Angular
+
+```typescript
+// In your module
+import { FiscalCalendarModule } from 'fiscal-year-calendar/angular';
+
+@NgModule({
+  imports: [FiscalCalendarModule]
+})
+export class AppModule { }
+
+// In your component template
+<app-fiscal-calendar
+  [presetKey]="'us-federal'"
+  [fiscalYear]="2025"
+></app-fiscal-calendar>
+```
+
+For more framework integration examples, see the [frameworks examples](./examples/frameworks).
+
+### Localization
+
+```typescript
+import { setLocale, localizeMonthOptions, getMonthOptions } from 'fiscal-year-calendar';
+
+// Set locale to French
+setLocale('fr');
+
+// Get month options with localized month names
+const months = getMonthOptions('monday', null, 2025, 9, 1);
+const localizedMonths = localizeMonthOptions(months, 'fr');
+
+console.log(localizedMonths[0].name); // "octobre" instead of "October"
+```
+
+### Export Functionality
+
+```typescript
+import { getMonthOptions, exportToCSV, exportToJSON, exportToICalendar } from 'fiscal-year-calendar';
+
+// Get fiscal year data
+const months = getMonthOptions('monday', null, 2025, 9, 1);
+
+// Export to CSV
+const csv = exportToCSV(months);
+console.log(csv);
+// "Month,Name,Start Date,End Date
+// 1,October,2024-10-01,2024-10-31
+// 2,November,2024-11-01,2024-11-30
+// ..."
+
+// Export to JSON
+const json = exportToJSON(months, { pretty: true });
+console.log(json);
+
+// Export to iCalendar format
+const ical = exportToICalendar(months, {
+  summary: "Fiscal Year 2025",
+  description: "Fiscal year periods"
+});
+console.log(ical);
+```
+
+For more examples, see the [examples directory](./examples).
 
 ## License
 
