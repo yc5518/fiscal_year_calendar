@@ -47,6 +47,8 @@ This major update brings significant enhancements to the fiscal-year-calendar li
 
 11. **Period Comparisons**: New functions for comparing fiscal periods and calculating year-over-year changes.
 
+12. **Financial API Integrations**: Added connectors for popular accounting software (QuickBooks, Xero) and a generic adapter for custom systems, enabling seamless integration of financial data with fiscal calendars.
+
 ## Installation
 
 ```bash
@@ -644,6 +646,61 @@ const ical = exportToICalendar(months, {
   description: "Fiscal year periods"
 });
 console.log(ical);
+```
+
+### Financial API Integrations
+
+The library includes connectors for popular accounting software to integrate financial data with fiscal calendars:
+
+```typescript
+import { QuickBooksConnector } from 'fiscal-year-calendar/integrations';
+
+// Initialize QuickBooks connector
+const qbConnector = new QuickBooksConnector({
+  clientId: 'your-client-id',
+  clientSecret: 'your-client-secret',
+  redirectUri: 'https://your-app.com/callback'
+});
+
+// Get financial data for fiscal year 2025
+const financialData = await qbConnector.getFinancialData({
+  fiscalYear: 2025,
+  fiscalQuarter: 2
+});
+
+console.log(`Q2 2025 Revenue: ${financialData.revenue}`);
+console.log(`Q2 2025 Expenses: ${financialData.expenses}`);
+console.log(`Q2 2025 Profit: ${financialData.profit}`);
+```
+
+The library also includes a Xero connector and a generic adapter for custom accounting systems:
+
+```typescript
+import { 
+  XeroConnector, 
+  GenericAccountingAdapter, 
+  createRestDataSource, 
+  createSimpleDataTransformer 
+} from 'fiscal-year-calendar/integrations';
+
+// Create a custom adapter for any accounting system
+const adapter = new GenericAccountingAdapter({
+  clientId: 'your-client-id',
+  clientSecret: 'your-client-secret',
+  redirectUri: 'https://your-app.com/callback'
+}, {
+  dataSource: createRestDataSource('https://api.your-accounting-system.com'),
+  dataTransformer: createSimpleDataTransformer({
+    revenue: 'data.income.total',
+    expenses: 'data.expenses.total'
+  })
+});
+
+// Get financial data for a specific date range
+const financialData = await adapter.getFinancialData({
+  startDate: '2025-01-01',
+  endDate: '2025-03-31'
+});
 ```
 
 For more examples, see the [examples directory](./examples).

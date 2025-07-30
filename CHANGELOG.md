@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.1] - 2025-07-30
+
+### Added
+- Enhanced documentation with more real-world examples and interactive demos
+- Visualization components for displaying fiscal calendars in web applications
+  - Calendar grid view component
+  - Timeline chart component
+  - Customizable theming system with predefined themes
+- Framework integration examples for React, Vue, and Angular
+- Export functionality for fiscal calendars to CSV, iCal, and JSON formats
+- Localization support for different languages and regional date formatting
+- Advanced reporting and comparison tools for fiscal periods
+- UI theming system with predefined themes and customization options
+- Additional fiscal year presets for various industries and countries
+- Date utilities for working with fiscal periods in different formats
+
+### Changed
+- Improved TypeScript type definitions for better developer experience
+- Enhanced documentation with more comprehensive examples
+- Restructured project for better organization and maintainability
+- Optimized performance for large fiscal calendar operations
+
+### Fixed
+- Edge cases in date calculations for special calendar systems
+- Localization issues with certain date formats
+- Type compatibility issues in TypeScript definitions
+
 ## [2.0.0] - 2025-07-02
 
 ### Added
