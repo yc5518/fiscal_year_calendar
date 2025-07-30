@@ -1,15 +1,31 @@
 {
   "name": "fiscal-year-calendar",
-  "version": "2.0.3",
+  "version": "3.1.0",
   "description": "A library to generate fiscal year calendar based on custom fiscal year start date",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/cjs/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/cjs/index.d.ts"
+    },
+    "./calendar": {
+      "import": "./dist/esm/calendar/index.js",
+      "require": "./dist/cjs/calendar/index.js",
+      "types": "./dist/cjs/calendar/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/esm/utils/index.js",
+      "require": "./dist/cjs/utils/index.js",
+      "types": "./dist/cjs/utils/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/esm/types/index.js",
+      "require": "./dist/cjs/types/index.js",
+      "types": "./dist/cjs/types/index.d.ts"
     }
   },
   "keywords": [
@@ -46,10 +62,12 @@
   },
   "homepage": "https://github.com/yc5518/fiscal_year_calendar#readme",
   "dependencies": {
-    "moment": "^2.30.1",
-    "moment-timezone": "^0.6.0",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0"
+  },
+  "peerDependencies": {
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.6.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",

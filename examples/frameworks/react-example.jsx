@@ -1,369 +1,355 @@
 import React, { useState, useEffect } from 'react';
 import {
-  getFiscalYearWithPreset,
+  getFiscalYear,
+  getWeekOptions,
   getMonthOptions,
   getQuarterOptions,
-  getWeekOptions,
-  START_OF_WEEK,
+  getFiscalYearWithPreset,
   FISCAL_YEAR_PRESETS,
-  exportToCSV,
-  setLocale,
-  localizeMonthOptions
+  START_OF_WEEK
 } from 'fiscal-year-calendar';
 
 /**
- * FiscalYearSelector - A React component for selecting fiscal year presets
+ * FiscalCalendar component demonstrates how to use fiscal-year-calendar in a React application
  */
-export const FiscalYearSelector = ({ onChange, defaultPreset = 'us-federal' }) => {
-  const [selectedPreset, setSelectedPreset] = useState(defaultPreset);
+const FiscalCalendar = () => {
+  // State for fiscal year configuration
+  const [config, setConfig] = useState({
+    year: new Date().getFullYear(),
+    fyStartMonth: 9, // October (0-based)
+    fyStartDay: 1,
+    preset: '',
+    weekStartDay: START_OF_WEEK.monday.value
+  });
   
-  const handleChange = (e) => {
-    const preset = e.target.value;
-    setSelectedPreset(preset);
-    if (onChange) {
-      onChange(preset);
-    }
-  };
+  // State for calendar data
+  const [calendarData, setCalendarData] = useState({
+    weeks: [],
+    months: [],
+    quarters: []
+  });
   
-  return (
-    <div className="fiscal-year-selector">
-      <label htmlFor="fiscal-preset">Fiscal Year Preset:</label>
-      <select 
-        id="fiscal-preset" 
-        value={selectedPreset} 
-        onChange={handleChange}
-      >
-        {Object.keys(FISCAL_YEAR_PRESETS).map(key => (
-          <option key={key} value={key}>
-            {FISCAL_YEAR_PRESETS[key].name}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-};
-
-/**
- * FiscalCalendarTable - A React component for displaying fiscal calendar data
- */
-export const FiscalCalendarTable = ({ 
-  presetKey = 'us-federal',
-  year = new Date().getFullYear(),
-  startOfWeek = START_OF_WEEK.monday.value,
-  showQuarters = true,
-  showMonths = true,
-  showWeeks = false,
-  locale = 'en'
-}) => {
-  const [calendarData, setCalendarData] = useState(null);
+  // State for selected period
+  const [selectedPeriod, setSelectedPeriod] = useState({
+    type: 'month',
+    value: '1'
+  });
   
+  // State for selected date
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  // Effect to update calendar data when config changes
   useEffect(() => {
-    // Set locale for localization
-    setLocale(locale);
+    const { year, fyStartMonth, fyStartDay, weekStartDay } = config;
     
-    // Get fiscal year data using the selected preset
-    const fyData = getFiscalYearWithPreset(presetKey, null, year, startOfWeek);
+    // Get calendar data
+    const weeks = getWeekOptions(weekStartDay, null, year, fyStartMonth, fyStartDay);
+    const months = getMonthOptions(weekStartDay, null, year, fyStartMonth, fyStartDay);
+    const quarters = getQuarterOptions(weekStartDay, null, year, fyStartMonth, fyStartDay);
     
-    // Localize month names if needed
-    if (locale !== 'en') {
-      fyData.months = localizeMonthOptions(fyData.months, locale);
-    }
-    
-    setCalendarData(fyData);
-  }, [presetKey, year, startOfWeek, locale]);
+    setCalendarData({ weeks, months, quarters });
+  }, [config]);
   
-  const handleExportCSV = () => {
-    if (!calendarData) return;
+  // Handle preset change
+  const handlePresetChange = (e) => {
+    const presetKey = e.target.value;
     
-    // Export months to CSV
-    const csv = exportToCSV(calendarData.months);
-    
-    // Create a download link
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `fiscal-year-${year}-${presetKey}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    if (presetKey) {
+      const preset = FISCAL_YEAR_PRESETS[presetKey];
+      setConfig(prev => ({
+        ...prev,
+        fyStartMonth: preset.fyStartMonth,
+        fyStartDay: preset.fyStartDay,
+        preset: presetKey
+      }));
+    } else {
+      setConfig(prev => ({
+        ...prev,
+        preset: ''
+      }));
+    }
   };
   
-  if (!calendarData) {
-    return <div>Loading calendar data...</div>;
-  }
+  // Handle fiscal year change
+  const handleYearChange = (e) => {
+    setConfig(prev => ({
+      ...prev,
+      year: parseInt(e.target.value)
+    }));
+  };
+  
+  // Handle start month change
+  const handleStartMonthChange = (e) => {
+    setConfig(prev => ({
+      ...prev,
+      fyStartMonth: parseInt(e.target.value),
+      preset: '' // Clear preset when manually changing
+    }));
+  };
+  
+  // Handle start day change
+  const handleStartDayChange = (e) => {
+    setConfig(prev => ({
+      ...prev,
+      fyStartDay: parseInt(e.target.value),
+      preset: '' // Clear preset when manually changing
+    }));
+  };
+  
+  // Handle week start day change
+  const handleWeekStartDayChange = (e) => {
+    setConfig(prev => ({
+      ...prev,
+      weekStartDay: e.target.value
+    }));
+  };
+  
+  // Handle period type change
+  const handlePeriodTypeChange = (e) => {
+    setSelectedPeriod({
+      type: e.target.value,
+      value: '1' // Reset to first period
+    });
+  };
+  
+  // Handle period value change
+  const handlePeriodValueChange = (e) => {
+    setSelectedPeriod(prev => ({
+      ...prev,
+      value: e.target.value
+    }));
+  };
+  
+  // Get current period data
+  const getCurrentPeriodData = () => {
+    const { type, value } = selectedPeriod;
+    const { weeks, months, quarters } = calendarData;
+    
+    switch (type) {
+      case 'week':
+        return weeks.find(week => week.week === value) || {};
+      case 'month':
+        return months.find(month => month.month === value) || {};
+      case 'quarter':
+        return quarters.find(quarter => quarter.quarter === value) || {};
+      default:
+        return {};
+    }
+  };
+  
+  // Get fiscal year for a date
+  const getFiscalYearForDate = (date) => {
+    const { fyStartMonth, fyStartDay } = config;
+    return getFiscalYear(date, null, fyStartMonth, fyStartDay);
+  };
+  
+  // Format date for display
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+  
+  // Get period options based on type
+  const getPeriodOptions = () => {
+    const { type } = selectedPeriod;
+    const { weeks, months, quarters } = calendarData;
+    
+    switch (type) {
+      case 'week':
+        return weeks.map(week => (
+          <option key={week.week} value={week.week}>
+            Week {week.week}
+          </option>
+        ));
+      case 'month':
+        return months.map(month => (
+          <option key={month.month} value={month.month}>
+            {month.name}
+          </option>
+        ));
+      case 'quarter':
+        return quarters.map(quarter => (
+          <option key={quarter.quarter} value={quarter.quarter}>
+            Quarter {quarter.quarter}
+          </option>
+        ));
+      default:
+        return [];
+    }
+  };
+  
+  const periodData = getCurrentPeriodData();
+  const fiscalYear = getFiscalYearForDate(selectedDate);
   
   return (
     <div className="fiscal-calendar">
-      <div className="fiscal-calendar-header">
-        <h2>
-          {calendarData.preset.name} Fiscal Year {calendarData.fiscalYear}
-        </h2>
-        <p>
-          <strong>Start Date:</strong> {calendarData.startDate.format('MMMM D, YYYY')} | 
-          <strong>End Date:</strong> {calendarData.endDate.format('MMMM D, YYYY')}
-        </p>
-        <button onClick={handleExportCSV}>Export to CSV</button>
-      </div>
+      <h1>Fiscal Year Calendar</h1>
       
-      {showQuarters && (
-        <div className="fiscal-quarters">
-          <h3>Quarters</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Quarter</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {calendarData.quarters.map((quarter) => (
-                <tr key={`quarter-${quarter.quarter}`}>
-                  <td>Q{quarter.quarter}</td>
-                  <td>{new Date(quarter.startTime).toLocaleDateString()}</td>
-                  <td>{new Date(quarter.endTime).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      
-      {showMonths && (
-        <div className="fiscal-months">
-          <h3>Months</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Name</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {calendarData.months.map((month) => (
-                <tr key={`month-${month.month}`}>
-                  <td>{month.month}</td>
-                  <td>{month.name}</td>
-                  <td>{new Date(month.startTime).toLocaleDateString()}</td>
-                  <td>{new Date(month.endTime).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      
-      {showWeeks && (
-        <div className="fiscal-weeks">
-          <h3>Weeks</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Week</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {calendarData.weeks.map((week) => (
-                <tr key={`week-${week.week}`}>
-                  <td>{week.week}</td>
-                  <td>{new Date(week.startTime).toLocaleDateString()}</td>
-                  <td>{new Date(week.endTime).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-};
-
-/**
- * FiscalDateInfo - A React component for displaying fiscal information about a date
- */
-export const FiscalDateInfo = ({ 
-  date = new Date(),
-  presetKey = 'us-federal'
-}) => {
-  const [fiscalInfo, setFiscalInfo] = useState(null);
-  
-  useEffect(() => {
-    // Get the preset configuration
-    const preset = FISCAL_YEAR_PRESETS[presetKey];
-    
-    if (!preset) {
-      console.error(`Preset ${presetKey} not found`);
-      return;
-    }
-    
-    // Get fiscal year data using the selected preset
-    const fyData = getFiscalYearWithPreset(presetKey, null, null);
-    
-    // Find which quarter the date falls in
-    const quarter = fyData.quarters.find(q => 
-      new Date(date) >= new Date(q.startTime) && 
-      new Date(date) <= new Date(q.endTime)
-    );
-    
-    // Find which month the date falls in
-    const month = fyData.months.find(m => 
-      new Date(date) >= new Date(m.startTime) && 
-      new Date(date) <= new Date(m.endTime)
-    );
-    
-    // Find which week the date falls in
-    const week = fyData.weeks.find(w => 
-      new Date(date) >= new Date(w.startTime) && 
-      new Date(date) <= new Date(w.endTime)
-    );
-    
-    setFiscalInfo({
-      fiscalYear: fyData.fiscalYear,
-      quarter: quarter ? quarter.quarter : 'N/A',
-      month: month ? month.month : 'N/A',
-      monthName: month ? month.name : 'N/A',
-      week: week ? week.week : 'N/A'
-    });
-  }, [date, presetKey]);
-  
-  if (!fiscalInfo) {
-    return <div>Loading fiscal information...</div>;
-  }
-  
-  return (
-    <div className="fiscal-date-info">
-      <h3>Fiscal Information for {date.toLocaleDateString()}</h3>
-      <table>
-        <tbody>
-          <tr>
-            <th>Fiscal Year:</th>
-            <td>{fiscalInfo.fiscalYear}</td>
-          </tr>
-          <tr>
-            <th>Fiscal Quarter:</th>
-            <td>Q{fiscalInfo.quarter}</td>
-          </tr>
-          <tr>
-            <th>Fiscal Month:</th>
-            <td>{fiscalInfo.month} ({fiscalInfo.monthName})</td>
-          </tr>
-          <tr>
-            <th>Fiscal Week:</th>
-            <td>{fiscalInfo.week}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-/**
- * FiscalYearDashboard - A complete React dashboard component
- */
-export const FiscalYearDashboard = () => {
-  const [presetKey, setPresetKey] = useState('us-federal');
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [locale, setLocale] = useState('en');
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  
-  const handlePresetChange = (preset) => {
-    setPresetKey(preset);
-  };
-  
-  const handleYearChange = (e) => {
-    setYear(parseInt(e.target.value));
-  };
-  
-  const handleLocaleChange = (e) => {
-    setLocale(e.target.value);
-  };
-  
-  const handleDateChange = (e) => {
-    setSelectedDate(new Date(e.target.value));
-  };
-  
-  return (
-    <div className="fiscal-year-dashboard">
-      <h1>Fiscal Year Dashboard</h1>
-      
-      <div className="controls">
-        <FiscalYearSelector 
-          onChange={handlePresetChange} 
-          defaultPreset={presetKey} 
-        />
+      <div className="config-panel">
+        <h2>Configuration</h2>
         
-        <div className="year-selector">
-          <label htmlFor="fiscal-year">Fiscal Year:</label>
-          <input 
-            type="number" 
-            id="fiscal-year" 
-            value={year} 
-            onChange={handleYearChange} 
-            min="2000" 
-            max="2100" 
-          />
-        </div>
-        
-        <div className="locale-selector">
-          <label htmlFor="locale">Locale:</label>
-          <select id="locale" value={locale} onChange={handleLocaleChange}>
-            <option value="en">English</option>
-            <option value="fr">French</option>
-            <option value="es">Spanish</option>
-            <option value="de">German</option>
-            <option value="ja">Japanese</option>
+        <div className="form-group">
+          <label>Preset:</label>
+          <select value={config.preset} onChange={handlePresetChange}>
+            <option value="">Custom</option>
+            {Object.keys(FISCAL_YEAR_PRESETS).map(key => (
+              <option key={key} value={key}>
+                {FISCAL_YEAR_PRESETS[key].name}
+              </option>
+            ))}
           </select>
         </div>
         
-        <div className="date-selector">
-          <label htmlFor="selected-date">Selected Date:</label>
-          <input 
-            type="date" 
-            id="selected-date" 
-            value={selectedDate.toISOString().split('T')[0]} 
-            onChange={handleDateChange} 
-          />
+        <div className="form-group">
+          <label>Fiscal Year:</label>
+          <select value={config.year} onChange={handleYearChange}>
+            {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
         </div>
-      </div>
-      
-      <div className="dashboard-content">
-        <div className="calendar-section">
-          <FiscalCalendarTable 
-            presetKey={presetKey} 
-            year={year} 
-            showQuarters={true}
-            showMonths={true}
-            showWeeks={false}
-            locale={locale}
+        
+        <div className="form-group">
+          <label>Start Month:</label>
+          <select value={config.fyStartMonth} onChange={handleStartMonthChange}>
+            <option value={0}>January</option>
+            <option value={1}>February</option>
+            <option value={2}>March</option>
+            <option value={3}>April</option>
+            <option value={4}>May</option>
+            <option value={5}>June</option>
+            <option value={6}>July</option>
+            <option value={7}>August</option>
+            <option value={8}>September</option>
+            <option value={9}>October</option>
+            <option value={10}>November</option>
+            <option value={11}>December</option>
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label>Start Day:</label>
+          <input
+            type="number"
+            min="1"
+            max="31"
+            value={config.fyStartDay}
+            onChange={handleStartDayChange}
           />
         </div>
         
-        <div className="date-info-section">
-          <FiscalDateInfo 
-            date={selectedDate} 
-            presetKey={presetKey} 
-          />
+        <div className="form-group">
+          <label>Week Starts On:</label>
+          <select value={config.weekStartDay} onChange={handleWeekStartDayChange}>
+            <option value={START_OF_WEEK.monday.value}>Monday</option>
+            <option value={START_OF_WEEK.sunday.value}>Sunday</option>
+            <option value={START_OF_WEEK.saturday.value}>Saturday</option>
+          </select>
         </div>
       </div>
+      
+      <div className="period-selector">
+        <h2>Period Selection</h2>
+        
+        <div className="form-group">
+          <label>Period Type:</label>
+          <select value={selectedPeriod.type} onChange={handlePeriodTypeChange}>
+            <option value="week">Week</option>
+            <option value="month">Month</option>
+            <option value="quarter">Quarter</option>
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label>Period:</label>
+          <select value={selectedPeriod.value} onChange={handlePeriodValueChange}>
+            {getPeriodOptions()}
+          </select>
+        </div>
+        
+        <div className="period-info">
+          <h3>Period Information</h3>
+          <p><strong>Start Date:</strong> {formatDate(periodData.startTime)}</p>
+          <p><strong>End Date:</strong> {formatDate(periodData.endTime)}</p>
+        </div>
+      </div>
+      
+      <div className="date-checker">
+        <h2>Date Checker</h2>
+        
+        <div className="form-group">
+          <label>Select Date:</label>
+          <input
+            type="date"
+            value={selectedDate.toISOString().split('T')[0]}
+            onChange={(e) => setSelectedDate(new Date(e.target.value))}
+          />
+        </div>
+        
+        <div className="date-info">
+          <p><strong>Fiscal Year:</strong> {fiscalYear}</p>
+        </div>
+      </div>
+      
+      <style jsx>{`
+        .fiscal-calendar {
+          font-family: Arial, sans-serif;
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        
+        h1 {
+          color: #2c3e50;
+          text-align: center;
+        }
+        
+        h2 {
+          color: #3498db;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 10px;
+        }
+        
+        .config-panel, .period-selector, .date-checker {
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          padding: 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+          margin-bottom: 15px;
+          display: flex;
+          align-items: center;
+        }
+        
+        .form-group label {
+          width: 120px;
+          font-weight: bold;
+        }
+        
+        .form-group select, .form-group input {
+          flex: 1;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+        }
+        
+        .period-info, .date-info {
+          background-color: #ecf0f1;
+          padding: 15px;
+          border-radius: 4px;
+          margin-top: 15px;
+        }
+      `}</style>
     </div>
   );
 };
 
-// Example usage in a React application:
-/*
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { FiscalYearDashboard } from './FiscalYearComponents';
-import './styles.css';
-
-ReactDOM.render(
-  <FiscalYearDashboard />,
-  document.getElementById('root')
-);
-*/
+export default FiscalCalendar;

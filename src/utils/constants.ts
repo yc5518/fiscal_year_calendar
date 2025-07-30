@@ -7,6 +7,9 @@ import { StartOfWeek, FiscalYearPreset } from '../types';
 export const DEFAULT_FY_START_MONTH = 9;
 export const DEFAULT_FY_START_DAY = 1;
 
+// Default date format for parsing and formatting dates
+export const DEFAULT_DATE_FORMAT = 'yyyy-MM-dd';
+
 // With customised locale
 // E.g.: when we set the first day of a week to be Sunday, 0 represents **Sunday**;
 // when we set the first day of a week to be Monday, 0 represents **Monday**.

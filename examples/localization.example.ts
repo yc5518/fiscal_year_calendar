@@ -1,184 +1,187 @@
 /**
- * TypeScript example demonstrating the localization functionality of fiscal-year-calendar
+ * Localization Example (TypeScript)
+ * 
+ * This example demonstrates how to use the localization features
+ * to format dates and calendar data in different languages.
  */
+
 import {
-    getWeekOptions,
-    getMonthOptions,
-    getFiscalYearWithPreset,
-    setLocale,
-    getLocale,
-    getAvailableLocales,
-    formatLocalizedDate,
-    getLocalizedMonthName,
-    getLocalizedDayName,
-    localizeMonthOptions,
-    formatLocalizedDateRange,
-    localizeWeekOptions,
-    getLocalizedQuarterName,
-    START_OF_WEEK,
-    MonthOption,
-    WeekOption
-} from '../src';
+  getWeekOptions,
+  getMonthOptions,
+  getQuarterOptions,
+  getFiscalYearWithPreset,
+  setLocale,
+  getLocale,
+  getAvailableLocales,
+  formatLocalizedDate,
+  getLocalizedMonthName,
+  getLocalizedDayName,
+  localizeMonthOptions,
+  formatLocalizedDateRange,
+  localizeWeekOptions,
+  localizeQuarterOptions,
+  getLocalizedQuarterName,
+  FISCAL_YEAR_PRESETS,
+  START_OF_WEEK,
+  WeekOption,
+  MonthOption,
+  QuarterOption,
+  FiscalYearConfig
+} from 'fiscal-year-calendar';
 
-console.log("=== Fiscal Year Calendar Localization Examples (TypeScript) ===\n");
-
-// Example 1: Get available locales with TypeScript
-console.log("Example 1: Available Locales");
-const availableLocales: string[] = getAvailableLocales();
-console.log(`Available locales: ${availableLocales.join(', ')}`);
-console.log("\n");
-
-// Example 2: Set and get locale with TypeScript
-console.log("Example 2: Set and Get Locale");
-console.log(`Current locale: ${getLocale()}`);
-setLocale('fr');
-console.log(`After setting to French: ${getLocale()}`);
-console.log("\n");
-
-// Example 3: Format dates according to locale with TypeScript
-console.log("Example 3: Format Dates According to Locale");
-const date: Date = new Date(2025, 9, 15); // October 15, 2025
-console.log("Date: October 15, 2025");
-
-setLocale('en');
-console.log(`English format: ${formatLocalizedDate(date)}`);
-
-setLocale('fr');
-console.log(`French format: ${formatLocalizedDate(date)}`);
-
-setLocale('de');
-console.log(`German format: ${formatLocalizedDate(date)}`);
-
-setLocale('es');
-console.log(`Spanish format: ${formatLocalizedDate(date)}`);
-console.log("\n");
-
-// Example 4: Get localized month names with TypeScript
-console.log("Example 4: Localized Month Names");
-setLocale('en');
-console.log("English month names:");
-for (let i = 0; i < 12; i++) {
-    console.log(`Month ${i + 1}: ${getLocalizedMonthName(i)}`);
+// Example 1: Display available locales
+function displayAvailableLocales(): void {
+  console.log('Available Locales:');
+  const locales: string[] = getAvailableLocales();
+  locales.forEach(locale => {
+    console.log(`- ${locale}`);
+  });
+  console.log();
 }
 
-console.log("\nFrench month names:");
-setLocale('fr');
-for (let i = 0; i < 12; i++) {
-    console.log(`Month ${i + 1}: ${getLocalizedMonthName(i)}`);
-}
-console.log("\n");
-
-// Example 5: Get localized day names with TypeScript
-console.log("Example 5: Localized Day Names");
-setLocale('en');
-console.log("English day names:");
-for (let i = 0; i < 7; i++) {
-    console.log(`Day ${i}: ${getLocalizedDayName(i)}`);
+// Example 2: Format dates in different locales
+function formatDatesInDifferentLocales(): void {
+  const today: Date = new Date();
+  const locales: string[] = getAvailableLocales();
+  
+  console.log('Today\'s date in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`${locale}: ${formatLocalizedDate(today)}`);
+  });
+  console.log();
 }
 
-console.log("\nGerman day names:");
-setLocale('de');
-for (let i = 0; i < 7; i++) {
-    console.log(`Day ${i}: ${getLocalizedDayName(i)}`);
+// Example 3: Display month names in different locales
+function displayMonthNamesInDifferentLocales(): void {
+  const locales: string[] = ['en-US', 'fr', 'ja', 'ru'];
+  
+  console.log('Month names in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\n${locale}:`);
+    for (let month = 0; month < 12; month++) {
+      console.log(`${month + 1}: ${getLocalizedMonthName(month)}`);
+    }
+  });
+  console.log();
 }
-console.log("\n");
 
-// Example 6: Localize month options with TypeScript
-console.log("Example 6: Localized Month Options");
-setLocale('en');
-const year = 2025;
-const monthOptions: MonthOption[] = getMonthOptions(
+// Example 4: Display day names in different locales
+function displayDayNamesInDifferentLocales(): void {
+  const locales: string[] = ['en-US', 'de', 'zh-CN', 'es'];
+  
+  console.log('Day names in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\n${locale}:`);
+    for (let day = 0; day < 7; day++) {
+      console.log(`${day}: ${getLocalizedDayName(day)}`);
+    }
+  });
+  console.log();
+}
+
+// Example 5: Format date ranges in different locales
+function formatDateRangesInDifferentLocales(): void {
+  const startDate: Date = new Date(2025, 0, 1); // Jan 1, 2025
+  const endDate: Date = new Date(2025, 11, 31); // Dec 31, 2025
+  const locales: string[] = ['en-US', 'fr', 'ja', 'de'];
+  
+  console.log('Date ranges in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`${locale}: ${formatLocalizedDateRange(startDate, endDate)}`);
+  });
+  console.log();
+}
+
+// Example 6: Localize fiscal year data
+function localizeFiscalYearData(): void {
+  // Get fiscal year configuration using preset
+  const config: FiscalYearConfig = getFiscalYearWithPreset('us-federal');
+  const currentYear: number = new Date().getFullYear();
+  
+  // Get calendar data
+  const months: MonthOption[] = getMonthOptions(
     START_OF_WEEK.monday.value,
     null,
-    year
-);
-
-console.log("Original month options (first 3):");
-console.log(monthOptions.slice(0, 3));
-
-setLocale('es');
-const localizedMonths: MonthOption[] = localizeMonthOptions(monthOptions);
-console.log("\nLocalized month options in Spanish (first 3):");
-console.log(localizedMonths.slice(0, 3));
-console.log("\n");
-
-// Example 7: Format localized date ranges with TypeScript
-console.log("Example 7: Localized Date Ranges");
-const startDate: Date = new Date(2025, 0, 15); // January 15, 2025
-const endDate: Date = new Date(2025, 1, 20);   // February 20, 2025
-
-setLocale('en');
-console.log(`English date range: ${formatLocalizedDateRange(startDate, endDate)}`);
-
-setLocale('fr');
-console.log(`French date range: ${formatLocalizedDateRange(startDate, endDate)}`);
-
-setLocale('de');
-console.log(`German date range: ${formatLocalizedDateRange(startDate, endDate)}`);
-console.log("\n");
-
-// Example 8: Localize week options with TypeScript
-console.log("Example 8: Localized Week Options");
-setLocale('en');
-const weekOptions: WeekOption[] = getWeekOptions(
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  const quarters: QuarterOption[] = getQuarterOptions(
     START_OF_WEEK.monday.value,
     null,
-    year
-);
-
-const localizedWeeks = localizeWeekOptions(weekOptions.slice(0, 3));
-console.log("Localized week options (first 3):");
-localizedWeeks.forEach(week => {
-    console.log(`Week ${week.week}: ${week.localizedDateRange}`);
-});
-console.log("\n");
-
-// Example 9: Localized quarter names with TypeScript
-console.log("Example 9: Localized Quarter Names");
-setLocale('en');
-console.log("English quarter names:");
-for (let i = 1; i <= 4; i++) {
-    console.log(`Quarter ${i}: ${getLocalizedQuarterName(i)}`);
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  const weeks: WeekOption[] = getWeekOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  // Localize data in different locales
+  const locales: string[] = ['en-US', 'fr', 'ja'];
+  
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\nFiscal Year Data in ${locale}:`);
+    
+    // Localize months
+    const localizedMonths: MonthOption[] = localizeMonthOptions(months);
+    console.log('\nMonths:');
+    localizedMonths.slice(0, 3).forEach(month => {
+      console.log(`Month ${month.month}: ${month.name} (${formatLocalizedDateRange(month.startTime, month.endTime, 'P')})`);
+    });
+    
+    // Localize quarters
+    const localizedQuarters: QuarterOption[] = localizeQuarterOptions(quarters);
+    console.log('\nQuarters:');
+    localizedQuarters.forEach(quarter => {
+      console.log(`${quarter.quarter}: ${formatLocalizedDateRange(quarter.startTime, quarter.endTime, 'P')}`);
+    });
+    
+    // Localize weeks (showing just first 3)
+    const localizedWeeks: WeekOption[] = localizeWeekOptions(weeks);
+    console.log('\nWeeks (first 3):');
+    localizedWeeks.slice(0, 3).forEach(week => {
+      console.log(`Week ${week.week}: ${formatLocalizedDateRange(week.startTime, week.endTime, 'P')}`);
+    });
+  });
 }
 
-console.log("\nJapanese quarter names:");
-setLocale('ja');
-for (let i = 1; i <= 4; i++) {
-    console.log(`Quarter ${i}: ${getLocalizedQuarterName(i)}`);
-}
-console.log("\n");
-
-// Example 10: Combining localization with fiscal year presets with TypeScript
-console.log("Example 10: Localized Fiscal Year Presets");
-setLocale('fr');
-const usPreset = getFiscalYearWithPreset("us-federal", null, year);
-const localizedPresetMonths = localizeMonthOptions(usPreset.months);
-
-console.log(`US Federal Government fiscal year ${year} months in French (first 3):`);
-localizedPresetMonths.slice(0, 3).forEach(month => {
-    console.log(`Month ${month.month}: ${month.name}, ${formatLocalizedDateRange(month.startTime, month.endTime)}`);
-});
-
-// Example 11: Type safety with TypeScript
-console.log("Example 11: Type Safety with TypeScript");
-// This demonstrates TypeScript's type checking capabilities
-interface LocalizedMonthInfo {
-    monthNumber: string;
-    name: string;
-    dateRange: string;
+// Example 7: Display quarter names in different locales
+function displayQuarterNamesInDifferentLocales(): void {
+  const locales: string[] = ['en-US', 'fr', 'ja', 'ru', 'zh-CN'];
+  
+  console.log('Quarter names in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\n${locale}:`);
+    for (let quarter = 1; quarter <= 4; quarter++) {
+      console.log(`${quarter}: ${getLocalizedQuarterName(quarter)}`);
+    }
+  });
+  console.log();
 }
 
-// Create a strongly typed array of localized month information
-const typedMonthInfo: LocalizedMonthInfo[] = localizedPresetMonths.slice(0, 3).map(month => ({
-    monthNumber: month.month,
-    name: month.name,
-    dateRange: formatLocalizedDateRange(month.startTime, month.endTime)
-}));
+// Run all examples
+function runAllExamples(): void {
+  displayAvailableLocales();
+  formatDatesInDifferentLocales();
+  displayMonthNamesInDifferentLocales();
+  displayDayNamesInDifferentLocales();
+  formatDateRangesInDifferentLocales();
+  displayQuarterNamesInDifferentLocales();
+  localizeFiscalYearData();
+}
 
-console.log("Strongly typed localized month information:");
-console.log(typedMonthInfo);
-
-// Reset locale to English
-setLocale('en');
-
-// To run this example: ts-node examples/localization.example.ts
+// Run the examples
+runAllExamples();

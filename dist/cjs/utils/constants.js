@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FISCAL_YEAR_PRESETS = exports.CALENDAR_SYSTEMS = exports.START_OF_WEEK = exports.FIRST_DAY_NUM_OF_WEEK = exports.DEFAULT_FY_START_DAY = exports.DEFAULT_FY_START_MONTH = void 0;
+exports.FISCAL_YEAR_PRESETS = exports.CALENDAR_SYSTEMS = exports.START_OF_WEEK = exports.FIRST_DAY_NUM_OF_WEEK = exports.DEFAULT_DATE_FORMAT = exports.DEFAULT_FY_START_DAY = exports.DEFAULT_FY_START_MONTH = void 0;
 // Default fiscal year start month (0-based, 9 = October)
 exports.DEFAULT_FY_START_MONTH = 9;
 exports.DEFAULT_FY_START_DAY = 1;
+// Default date format for parsing and formatting dates
+exports.DEFAULT_DATE_FORMAT = 'yyyy-MM-dd';
 // With customised locale
 // E.g.: when we set the first day of a week to be Sunday, 0 represents **Sunday**;
 // when we set the first day of a week to be Monday, 0 represents **Monday**.
@@ -31,6 +33,7 @@ exports.CALENDAR_SYSTEMS = {
 };
 // Common fiscal year presets
 exports.FISCAL_YEAR_PRESETS = {
+    // Government Fiscal Years
     'us-federal': {
         name: 'US Federal Government',
         fyStartMonth: 9, // October
@@ -79,6 +82,98 @@ exports.FISCAL_YEAR_PRESETS = {
         fyStartDay: 1,
         description: 'Singapore fiscal year (Apr 1 - Mar 31)',
     },
+    'brazil': {
+        name: 'Brazil',
+        fyStartMonth: 0, // January
+        fyStartDay: 1,
+        description: 'Brazilian fiscal year (Jan 1 - Dec 31)',
+    },
+    'south-africa': {
+        name: 'South Africa',
+        fyStartMonth: 2, // March
+        fyStartDay: 1,
+        description: 'South African fiscal year (Mar 1 - Feb 28/29)',
+    },
+    'sweden': {
+        name: 'Sweden',
+        fyStartMonth: 0, // January
+        fyStartDay: 1,
+        description: 'Swedish fiscal year (Jan 1 - Dec 31)',
+    },
+    'france': {
+        name: 'France',
+        fyStartMonth: 0, // January
+        fyStartDay: 1,
+        description: 'French fiscal year (Jan 1 - Dec 31)',
+    },
+    'germany': {
+        name: 'Germany',
+        fyStartMonth: 0, // January
+        fyStartDay: 1,
+        description: 'German fiscal year (Jan 1 - Dec 31)',
+    },
+    // Industry-specific Fiscal Years
+    'retail-standard': {
+        name: 'Retail Standard',
+        fyStartMonth: 1, // February
+        fyStartDay: 1,
+        description: 'Standard retail fiscal year (Feb 1 - Jan 31)',
+    },
+    'retail-445': {
+        name: 'Retail 4-4-5',
+        fyStartMonth: 1, // February
+        fyStartDay: 1,
+        description: 'Retail 4-4-5 fiscal year (Feb 1 - Jan 31)',
+    },
+    'education-us': {
+        name: 'US Education',
+        fyStartMonth: 6, // July
+        fyStartDay: 1,
+        description: 'US education fiscal year (Jul 1 - Jun 30)',
+    },
+    'nonprofit-us': {
+        name: 'US Nonprofit',
+        fyStartMonth: 6, // July
+        fyStartDay: 1,
+        description: 'Common US nonprofit fiscal year (Jul 1 - Jun 30)',
+    },
+    'healthcare-us': {
+        name: 'US Healthcare',
+        fyStartMonth: 9, // October
+        fyStartDay: 1,
+        description: 'Common US healthcare fiscal year (Oct 1 - Sep 30)',
+    },
+    'tech-industry': {
+        name: 'Technology Industry',
+        fyStartMonth: 0, // January
+        fyStartDay: 1,
+        description: 'Common technology industry fiscal year (Jan 1 - Dec 31)',
+    },
+    'manufacturing': {
+        name: 'Manufacturing',
+        fyStartMonth: 9, // October
+        fyStartDay: 1,
+        description: 'Common manufacturing fiscal year (Oct 1 - Sep 30)',
+    },
+    'hospitality': {
+        name: 'Hospitality',
+        fyStartMonth: 0, // January
+        fyStartDay: 1,
+        description: 'Common hospitality industry fiscal year (Jan 1 - Dec 31)',
+    },
+    'construction': {
+        name: 'Construction',
+        fyStartMonth: 9, // October
+        fyStartDay: 1,
+        description: 'Common construction industry fiscal year (Oct 1 - Sep 30)',
+    },
+    'insurance': {
+        name: 'Insurance',
+        fyStartMonth: 0, // January
+        fyStartDay: 1,
+        description: 'Common insurance industry fiscal year (Jan 1 - Dec 31)',
+    },
+    // Standard Calendar Year
     'calendar-year': {
         name: 'Calendar Year',
         fyStartMonth: 0, // January

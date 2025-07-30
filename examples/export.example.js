@@ -1,105 +1,219 @@
 /**
- * Example demonstrating the export functionality of fiscal-year-calendar
+ * Export Example
+ * 
+ * This example demonstrates how to export fiscal calendar data to various formats
+ * including CSV, JSON, iCal, and HTML.
  */
-const fiscalYear = require("../index");
 
-console.log("=== Fiscal Year Calendar Export Examples ===\n");
+const {
+  getWeekOptions,
+  getMonthOptions,
+  getQuarterOptions,
+  getFiscalYearWithPreset,
+  exportToCSV,
+  exportToJSON,
+  exportToICal,
+  exportToHTML,
+  FISCAL_YEAR_PRESETS,
+  START_OF_WEEK
+} = require('fiscal-year-calendar');
+const fs = require('fs');
+const path = require('path');
 
-// Get fiscal year data to export
-const year = 2025;
-const weekOptions = fiscalYear.getWeekOptions(
-    fiscalYear.START_OF_WEEK.monday.value,
+// Create output directory if it doesn't exist
+const outputDir = path.join(__dirname, 'output');
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir);
+}
+
+// Example 1: Export US Federal Government fiscal year to CSV
+function exportUSFederalToCSV() {
+  console.log('Exporting US Federal Government fiscal year to CSV...');
+  
+  // Get fiscal year configuration using preset
+  const config = getFiscalYearWithPreset('us-federal');
+  const currentYear = new Date().getFullYear();
+  
+  // Get month options for the fiscal year
+  const months = getMonthOptions(
+    START_OF_WEEK.monday.value,
     null,
-    year
-);
-const quarterOptions = fiscalYear.getQuarterOptions(
-    fiscalYear.START_OF_WEEK.monday.value,
-    null,
-    year
-);
-const monthOptions = fiscalYear.getMonthOptions(
-    fiscalYear.START_OF_WEEK.monday.value,
-    null,
-    year
-);
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  // Export to CSV
+  const csvData = exportToCSV(months, {
+    headers: ['Month Number', 'Month Name', 'Start Date', 'End Date'],
+    fields: ['month', 'name', 'startTime', 'endTime'],
+    filename: path.join(outputDir, 'us_federal_months.csv')
+  });
+  
+  console.log('CSV export complete!');
+  return csvData;
+}
 
-// Example 1: Export weeks to CSV
-console.log("Example 1: Export weeks to CSV");
-const weeksCSV = fiscalYear.exportToCSV(weekOptions, {
-    dateFormat: 'YYYY-MM-DD',
-    includeHeaders: true,
-    delimiter: ','
-});
-console.log("CSV output (first 3 rows):");
-console.log(weeksCSV.split('\n').slice(0, 4).join('\n'));
-console.log("...");
-console.log("\n");
+// Example 2: Export UK fiscal year quarters to JSON
+function exportUKQuartersToJSON() {
+  console.log('Exporting UK fiscal year quarters to JSON...');
+  
+  // Get fiscal year configuration using preset
+  const config = getFiscalYearWithPreset('uk-standard');
+  const currentYear = new Date().getFullYear();
+  
+  // Get quarter options for the fiscal year
+  const quarters = getQuarterOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  // Export to JSON
+  const jsonData = exportToJSON(quarters, {
+    filename: path.join(outputDir, 'uk_quarters.json'),
+    pretty: true // Format JSON with indentation
+  });
+  
+  console.log('JSON export complete!');
+  return jsonData;
+}
 
-// Example 2: Export quarters to JSON
-console.log("Example 2: Export quarters to JSON");
-const quartersJSON = fiscalYear.exportToJSON(quarterOptions, {
-    dateFormat: 'YYYY-MM-DD',
+// Example 3: Export Australian fiscal year weeks to iCal
+function exportAustralianWeeksToICal() {
+  console.log('Exporting Australian fiscal year weeks to iCal...');
+  
+  // Get fiscal year configuration using preset
+  const config = getFiscalYearWithPreset('australia');
+  const currentYear = new Date().getFullYear();
+  
+  // Get week options for the fiscal year
+  const weeks = getWeekOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  // Export to iCal
+  const iCalData = exportToICal(weeks, {
+    filename: path.join(outputDir, 'australian_weeks.ics'),
+    calendarName: 'Australian Fiscal Year',
+    eventNamePrefix: 'Week ',
+    eventNameField: 'week',
+    startTimeField: 'startTime',
+    endTimeField: 'endTime',
+    description: 'Australian Fiscal Year Week'
+  });
+  
+  console.log('iCal export complete!');
+  return iCalData;
+}
+
+// Example 4: Export Calendar Year to HTML
+function exportCalendarYearToHTML() {
+  console.log('Exporting Calendar Year to HTML...');
+  
+  // Get fiscal year configuration using preset
+  const config = getFiscalYearWithPreset('calendar-year');
+  const currentYear = new Date().getFullYear();
+  
+  // Get month options for the fiscal year
+  const months = getMonthOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  // Export to HTML
+  const htmlData = exportToHTML(months, {
+    filename: path.join(outputDir, 'calendar_year.html'),
+    title: 'Calendar Year',
+    tableHeaders: ['Month', 'Name', 'Start Date', 'End Date'],
+    tableFields: ['month', 'name', 'startTime', 'endTime'],
+    cssStyles: `
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      h1 { color: #2c3e50; }
+      table { border-collapse: collapse; width: 100%; }
+      th { background-color: #3498db; color: white; }
+      th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+      tr:nth-child(even) { background-color: #f2f2f2; }
+    `
+  });
+  
+  console.log('HTML export complete!');
+  return htmlData;
+}
+
+// Example 5: Export custom fiscal year with all periods
+function exportCustomFiscalYear() {
+  console.log('Exporting custom fiscal year with all periods...');
+  
+  // Custom fiscal year configuration (July 1)
+  const config = {
+    fyStartMonth: 6, // July (0-based)
+    fyStartDay: 1
+  };
+  const currentYear = new Date().getFullYear();
+  
+  // Get all period options
+  const weeks = getWeekOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  const months = getMonthOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  const quarters = getQuarterOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  // Export all periods to JSON
+  const jsonData = exportToJSON({
+    fiscalYear: currentYear,
+    config,
+    periods: {
+      weeks,
+      months,
+      quarters
+    }
+  }, {
+    filename: path.join(outputDir, 'custom_fiscal_year.json'),
     pretty: true
-});
-console.log("JSON output:");
-console.log(quartersJSON);
-console.log("\n");
+  });
+  
+  console.log('Custom fiscal year export complete!');
+  return jsonData;
+}
 
-// Example 3: Export months to iCalendar
-console.log("Example 3: Export months to iCalendar");
-const monthsICal = fiscalYear.exportToICal(monthOptions, {
-    calendarName: `Fiscal Year ${year} Months`,
-    eventPrefix: 'FY'
-});
-console.log("iCalendar output (first 15 lines):");
-console.log(monthsICal.split('\r\n').slice(0, 15).join('\r\n'));
-console.log("...");
-console.log("\n");
+// Run all examples
+function runAllExamples() {
+  exportUSFederalToCSV();
+  exportUKQuartersToJSON();
+  exportAustralianWeeksToICal();
+  exportCalendarYearToHTML();
+  exportCustomFiscalYear();
+  
+  console.log(`All exports completed! Files saved to: ${outputDir}`);
+}
 
-// Example 4: Export months to HTML
-console.log("Example 4: Export months to HTML");
-const monthsHTML = fiscalYear.exportToHTML(monthOptions, {
-    title: `Fiscal Year ${year} Months`,
-    dateFormat: 'MMMM D, YYYY',
-    includeStyles: true
-});
-console.log("HTML output (truncated):");
-console.log(monthsHTML.substring(0, 500) + "...");
-console.log("\n");
-
-// Example 5: Export with different date formats
-console.log("Example 5: Export with different date formats");
-const formattedCSV = fiscalYear.exportToCSV(monthOptions.slice(0, 3), {
-    dateFormat: 'MMM DD, YYYY'
-});
-console.log("CSV with formatted dates:");
-console.log(formattedCSV);
-console.log("\n");
-
-// Example 6: Export retail calendar
-console.log("Example 6: Export retail calendar");
-const retailCalendar = fiscalYear.getRetailCalendarOptions(
-    fiscalYear.START_OF_WEEK.monday.value,
-    null,
-    year,
-    fiscalYear.CALENDAR_SYSTEMS.RETAIL_445
-);
-const retailJSON = fiscalYear.exportToJSON(retailCalendar, {
-    dateFormat: 'YYYY-MM-DD',
-    pretty: true
-});
-console.log("Retail calendar JSON (first period):");
-console.log(JSON.stringify(JSON.parse(retailJSON)[0], null, 2));
-console.log("\n");
-
-// Example 7: Export using a fiscal year preset
-console.log("Example 7: Export using a fiscal year preset");
-const usPreset = fiscalYear.getFiscalYearWithPreset("us-federal", null, year);
-const presetCSV = fiscalYear.exportToCSV(usPreset.months, {
-    dateFormat: 'YYYY-MM-DD'
-});
-console.log(`US Federal Government fiscal year ${year} months (CSV):`);
-console.log(presetCSV.split('\n').slice(0, 4).join('\n'));
-console.log("...");
-
-// To run this example: node examples/export.example.js
+// Run the examples
+runAllExamples();

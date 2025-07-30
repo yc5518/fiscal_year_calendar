@@ -4,6 +4,7 @@
 import { StartOfWeek, FiscalYearPreset } from '../types';
 export declare const DEFAULT_FY_START_MONTH = 9;
 export declare const DEFAULT_FY_START_DAY = 1;
+export declare const DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 export declare const FIRST_DAY_NUM_OF_WEEK = 0;
 export declare const START_OF_WEEK: StartOfWeek;
 export declare const CALENDAR_SYSTEMS: {

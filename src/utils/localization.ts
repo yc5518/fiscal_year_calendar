@@ -1,262 +1,194 @@
 /**
- * Localization functionality for fiscal-year-calendar
+ * Localization utilities for fiscal-year-calendar
+ * Provides functions to format dates and calendar data in different languages
  */
-import moment from 'moment';
-import 'moment/locale/fr';
-import 'moment/locale/es';
-import 'moment/locale/de';
-import 'moment/locale/it';
-import 'moment/locale/ja';
-import 'moment/locale/zh-cn';
-import 'moment/locale/pt';
-import 'moment/locale/ru';
-import 'moment/locale/ar';
-import 'moment/locale/hi';
-import 'moment/locale/ko';
-import { MonthOption, QuarterOption, WeekOption } from '../types';
+import { format, formatDistance, formatRelative, Locale } from 'date-fns';
+import { enUS, enGB, fr, de, es, it, ja, ko, zhCN, ru } from 'date-fns/locale';
+import { MonthOption, WeekOption, QuarterOption } from '../types';
+import { DateInput, toDateObject } from './dateUtils';
 
-/**
- * Available locales for the fiscal-year-calendar
- */
-export const AVAILABLE_LOCALES = [
-    'en', // English (default)
-    'fr', // French
-    'es', // Spanish
-    'de', // German
-    'it', // Italian
-    'ja', // Japanese
-    'zh-cn', // Chinese (Simplified)
-    'pt', // Portuguese
-    'ru', // Russian
-    'ar', // Arabic
-    'hi', // Hindi
-    'ko', // Korean
-];
-
-/**
- * Month name translations for different locales
- */
-export const MONTH_TRANSLATIONS: Record<string, string[]> = {
-    // These are just examples, moment.js will handle the actual translations
-    'en': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    'fr': ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-    'es': ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-    'de': ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+// Available locales
+export const AVAILABLE_LOCALES: Record<string, Locale> = {
+  'en-US': enUS,
+  'en-GB': enGB,
+  'fr': fr,
+  'de': de,
+  'es': es,
+  'it': it,
+  'ja': ja,
+  'ko': ko,
+  'zh-CN': zhCN,
+  'ru': ru
 };
 
-/**
- * Day name translations for different locales
- */
-export const DAY_TRANSLATIONS: Record<string, string[]> = {
-    // These are just examples, moment.js will handle the actual translations
-    'en': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-    'fr': ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
-    'es': ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-    'de': ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
-};
+// Current locale
+let currentLocale: Locale = enUS;
+let currentLocaleCode: string = 'en-US';
 
 /**
- * Sets the locale for date formatting
- * @param locale - The locale to set (e.g., 'en', 'fr', 'es', etc.)
- * @returns The current locale after setting
+ * Set the current locale
+ * @param localeCode - The locale code to set
+ * @returns True if the locale was set successfully, false otherwise
  */
-export function setLocale(locale: string): string {
-    if (AVAILABLE_LOCALES.includes(locale)) {
-        moment.locale(locale);
-        return moment.locale();
-    } else {
-        console.warn(`Locale '${locale}' not available. Using default locale.`);
-        moment.locale('en');
-        return moment.locale();
-    }
+export function setLocale(localeCode: string): boolean {
+  if (Object.prototype.hasOwnProperty.call(AVAILABLE_LOCALES, localeCode)) {
+    currentLocale = AVAILABLE_LOCALES[localeCode];
+    currentLocaleCode = localeCode;
+    return true;
+  }
+  return false;
 }
 
 /**
- * Gets the current locale
- * @returns The current locale
+ * Get the current locale
+ * @returns The current locale code
  */
 export function getLocale(): string {
-    return moment.locale();
+  return currentLocaleCode;
 }
 
 /**
- * Gets all available locales
+ * Get available locales
  * @returns Array of available locale codes
  */
 export function getAvailableLocales(): string[] {
-    return AVAILABLE_LOCALES;
+  return Object.keys(AVAILABLE_LOCALES);
 }
 
 /**
- * Formats a date according to the current locale
+ * Format a date using the current locale
  * @param date - The date to format
- * @param format - The format string (optional, uses locale-specific default if not provided)
+ * @param formatStr - The format string
  * @returns The formatted date string
  */
-export function formatLocalizedDate(date: string | Date | moment.Moment, format?: string): string {
-    const momentDate = moment(date);
-    return format ? momentDate.format(format) : momentDate.format('L');
+export function formatLocalizedDate(date: DateInput, formatStr: string = 'PPP'): string {
+  const dateObj = toDateObject(date);
+  return format(dateObj, formatStr, { locale: currentLocale });
 }
 
 /**
- * Gets the localized month name
- * @param month - Month number (0-11)
- * @param locale - Locale (optional, uses current locale if not provided)
+ * Get the localized month name
+ * @param month - The month number (0-11)
+ * @param formatType - The format ('long' or 'short')
  * @returns The localized month name
  */
-export function getLocalizedMonthName(month: number, locale?: string): string {
-    if (locale) {
-        moment.locale(locale);
-    }
-    return moment().month(month).format('MMMM');
+export function getLocalizedMonthName(month: number, formatType: 'long' | 'short' = 'long'): string {
+  const date = new Date(2000, month, 1);
+  return formatType === 'long' 
+    ? format(date, 'MMMM', { locale: currentLocale })
+    : format(date, 'MMM', { locale: currentLocale });
 }
 
 /**
- * Gets the localized day name
- * @param day - Day number (0-6, where 0 is Sunday)
- * @param locale - Locale (optional, uses current locale if not provided)
+ * Get the localized day name
+ * @param day - The day of week (0-6, where 0 is Sunday)
+ * @param formatType - The format ('long' or 'short')
  * @returns The localized day name
  */
-export function getLocalizedDayName(day: number, locale?: string): string {
-    if (locale) {
-        moment.locale(locale);
-    }
-    return moment().day(day).format('dddd');
+export function getLocalizedDayName(day: number, formatType: 'long' | 'short' = 'long'): string {
+  // Create a date for the specified day of week
+  const date = new Date(2000, 0, 2 + day); // Jan 2, 2000 was a Sunday
+  return formatType === 'long' 
+    ? format(date, 'EEEE', { locale: currentLocale })
+    : format(date, 'E', { locale: currentLocale });
 }
 
 /**
- * Localizes month options by translating month names
- * @param monthOptions - Array of month options
- * @param locale - Locale to use (optional, uses current locale if not provided)
- * @returns Array of localized month options
+ * Get the localized quarter name
+ * @param quarter - The quarter number (1-4)
+ * @returns The localized quarter name
  */
-export function localizeMonthOptions(monthOptions: MonthOption[], locale?: string): MonthOption[] {
-    if (locale) {
-        moment.locale(locale);
-    }
-    
-    return monthOptions.map(month => {
-        const monthIndex = parseInt(month.month) - 1;
-        const calendarMonthIndex = new Date(month.startTime).getMonth();
-        
-        return {
-            ...month,
-            name: getLocalizedMonthName(calendarMonthIndex, locale)
-        };
-    });
+export function getLocalizedQuarterName(quarter: number): string {
+  const quarterNames: Record<string, string[]> = {
+    'en-US': [`Q1`, `Q2`, `Q3`, `Q4`],
+    'en-GB': [`Q1`, `Q2`, `Q3`, `Q4`],
+    'fr': [`T1`, `T2`, `T3`, `T4`],
+    'de': [`Q1`, `Q2`, `Q3`, `Q4`],
+    'es': [`T1`, `T2`, `T3`, `T4`],
+    'it': [`T1`, `T2`, `T3`, `T4`],
+    'ja': [`第1四半期`, `第2四半期`, `第3四半期`, `第4四半期`],
+    'ko': [`1분기`, `2분기`, `3분기`, `4분기`],
+    'zh-CN': [`第一季度`, `第二季度`, `第三季度`, `第四季度`],
+    'ru': [`К1`, `К2`, `К3`, `К4`]
+  };
+  
+  const index = Math.max(0, Math.min(3, quarter - 1));
+  return quarterNames[currentLocaleCode]?.[index] || `Q${quarter}`;
 }
 
 /**
- * Formats a date range according to the current locale
+ * Format a date range using the current locale
  * @param startDate - The start date
  * @param endDate - The end date
- * @param format - The format string (optional)
+ * @param formatStr - The format string
  * @returns The formatted date range string
  */
 export function formatLocalizedDateRange(
-    startDate: string | Date | moment.Moment,
-    endDate: string | Date | moment.Moment,
-    format?: string
+  startDate: DateInput, 
+  endDate: DateInput, 
+  formatStr: string = 'PPP'
 ): string {
-    const start = moment(startDate);
-    const end = moment(endDate);
-    
-    if (format) {
-        return `${start.format(format)} - ${end.format(format)}`;
-    }
-    
-    // If same year, don't repeat the year
-    if (start.year() === end.year()) {
-        // If same month, don't repeat the month
-        if (start.month() === end.month()) {
-            return `${start.format('D')} - ${end.format('D MMMM YYYY')}`;
-        }
-        return `${start.format('D MMMM')} - ${end.format('D MMMM YYYY')}`;
-    }
-    
-    return `${start.format('D MMMM YYYY')} - ${end.format('D MMMM YYYY')}`;
+  const start = toDateObject(startDate);
+  const end = toDateObject(endDate);
+  
+  const startFormatted = format(start, formatStr, { locale: currentLocale });
+  const endFormatted = format(end, formatStr, { locale: currentLocale });
+  
+  return `${startFormatted} - ${endFormatted}`;
 }
 
 /**
- * Localizes week options
- * @param weekOptions - Array of week options
- * @param locale - Locale to use (optional, uses current locale if not provided)
- * @param dateFormat - Date format to use (optional)
- * @returns Array of localized week options with additional localized properties
+ * Localize month options
+ * @param months - The month options to localize
+ * @returns The localized month options
  */
-export function localizeWeekOptions(
-    weekOptions: WeekOption[],
-    locale?: string,
-    dateFormat?: string
-): (WeekOption & { localizedDateRange: string })[] {
-    if (locale) {
-        moment.locale(locale);
-    }
+export function localizeMonthOptions(months: MonthOption[]): MonthOption[] {
+  return months.map(month => {
+    const startDate = toDateObject(month.startTime);
+    const endDate = toDateObject(month.endTime);
     
-    return weekOptions.map(week => {
-        return {
-            ...week,
-            localizedDateRange: formatLocalizedDateRange(week.startTime, week.endTime, dateFormat)
-        };
-    });
-}
-
-/**
- * Localizes quarter options
- * @param quarterOptions - Array of quarter options
- * @param locale - Locale to use (optional, uses current locale if not provided)
- * @param dateFormat - Date format to use (optional)
- * @returns Array of localized quarter options with additional localized properties
- */
-export function localizeQuarterOptions(
-    quarterOptions: QuarterOption[],
-    locale?: string,
-    dateFormat?: string
-): (QuarterOption & { localizedDateRange: string })[] {
-    if (locale) {
-        moment.locale(locale);
-    }
-    
-    return quarterOptions.map(quarter => {
-        return {
-            ...quarter,
-            localizedDateRange: formatLocalizedDateRange(quarter.startTime, quarter.endTime, dateFormat)
-        };
-    });
-}
-
-/**
- * Gets the localized quarter name
- * @param quarter - Quarter number (1-4)
- * @param locale - Locale (optional, uses current locale if not provided)
- * @returns The localized quarter name
- */
-export function getLocalizedQuarterName(quarter: number, locale?: string): string {
-    if (locale) {
-        moment.locale(locale);
-    }
-    
-    const quarterNames: Record<string, string[]> = {
-        'en': ['First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter'],
-        'fr': ['Premier Trimestre', 'Deuxième Trimestre', 'Troisième Trimestre', 'Quatrième Trimestre'],
-        'es': ['Primer Trimestre', 'Segundo Trimestre', 'Tercer Trimestre', 'Cuarto Trimestre'],
-        'de': ['Erstes Quartal', 'Zweites Quartal', 'Drittes Quartal', 'Viertes Quartal'],
-        'it': ['Primo Trimestre', 'Secondo Trimestre', 'Terzo Trimestre', 'Quarto Trimestre'],
-        'ja': ['第1四半期', '第2四半期', '第3四半期', '第4四半期'],
-        'zh-cn': ['第一季度', '第二季度', '第三季度', '第四季度'],
-        'pt': ['Primeiro Trimestre', 'Segundo Trimestre', 'Terceiro Trimestre', 'Quarto Trimestre'],
-        'ru': ['Первый квартал', 'Второй квартал', 'Третий квартал', 'Четвертый квартал'],
-        'ar': ['الربع الأول', 'الربع الثاني', 'الربع الثالث', 'الربع الرابع'],
-        'hi': ['पहली तिमाही', 'दूसरी तिमाही', 'तीसरी तिमाही', 'चौथी तिमाही'],
-        'ko': ['1분기', '2분기', '3분기', '4분기'],
+    return {
+      ...month,
+      name: format(startDate, 'MMMM', { locale: currentLocale }),
+      startTime: startDate.toString(),
+      endTime: endDate.toString()
     };
+  });
+}
+
+/**
+ * Localize week options
+ * @param weeks - The week options to localize
+ * @returns The localized week options
+ */
+export function localizeWeekOptions(weeks: WeekOption[]): WeekOption[] {
+  return weeks.map(week => {
+    const startDate = toDateObject(week.startTime);
+    const endDate = toDateObject(week.endTime);
     
-    const currentLocale = moment.locale();
-    const fallbackLocale = 'en';
+    return {
+      ...week,
+      startTime: startDate.toString(),
+      endTime: endDate.toString()
+    };
+  });
+}
+
+/**
+ * Localize quarter options
+ * @param quarters - The quarter options to localize
+ * @returns The localized quarter options
+ */
+export function localizeQuarterOptions(quarters: QuarterOption[]): QuarterOption[] {
+  return quarters.map(quarter => {
+    const startDate = toDateObject(quarter.startTime);
+    const endDate = toDateObject(quarter.endTime);
     
-    if (quarterNames[currentLocale] && quarter >= 1 && quarter <= 4) {
-        return quarterNames[currentLocale][quarter - 1];
-    }
-    
-    return quarterNames[fallbackLocale][quarter - 1];
+    return {
+      ...quarter,
+      quarter: getLocalizedQuarterName(parseInt(quarter.quarter)),
+      startTime: startDate.toString(),
+      endTime: endDate.toString()
+    };
+  });
 }

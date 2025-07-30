@@ -1,148 +1,183 @@
 /**
- * Example demonstrating the localization functionality of fiscal-year-calendar
+ * Localization Example
+ * 
+ * This example demonstrates how to use the localization features
+ * to format dates and calendar data in different languages.
  */
-const fiscalYear = require("../index");
 
-console.log("=== Fiscal Year Calendar Localization Examples ===\n");
+const {
+  getWeekOptions,
+  getMonthOptions,
+  getQuarterOptions,
+  getFiscalYearWithPreset,
+  setLocale,
+  getLocale,
+  getAvailableLocales,
+  formatLocalizedDate,
+  getLocalizedMonthName,
+  getLocalizedDayName,
+  localizeMonthOptions,
+  formatLocalizedDateRange,
+  localizeWeekOptions,
+  localizeQuarterOptions,
+  getLocalizedQuarterName,
+  FISCAL_YEAR_PRESETS,
+  START_OF_WEEK
+} = require('fiscal-year-calendar');
 
-// Example 1: Get available locales
-console.log("Example 1: Available Locales");
-const availableLocales = fiscalYear.getAvailableLocales();
-console.log(`Available locales: ${availableLocales.join(', ')}`);
-console.log("\n");
-
-// Example 2: Set and get locale
-console.log("Example 2: Set and Get Locale");
-console.log(`Current locale: ${fiscalYear.getLocale()}`);
-fiscalYear.setLocale('fr');
-console.log(`After setting to French: ${fiscalYear.getLocale()}`);
-console.log("\n");
-
-// Example 3: Format dates according to locale
-console.log("Example 3: Format Dates According to Locale");
-const date = new Date(2025, 9, 15); // October 15, 2025
-console.log("Date: October 15, 2025");
-
-fiscalYear.setLocale('en');
-console.log(`English format: ${fiscalYear.formatLocalizedDate(date)}`);
-
-fiscalYear.setLocale('fr');
-console.log(`French format: ${fiscalYear.formatLocalizedDate(date)}`);
-
-fiscalYear.setLocale('de');
-console.log(`German format: ${fiscalYear.formatLocalizedDate(date)}`);
-
-fiscalYear.setLocale('es');
-console.log(`Spanish format: ${fiscalYear.formatLocalizedDate(date)}`);
-console.log("\n");
-
-// Example 4: Get localized month names
-console.log("Example 4: Localized Month Names");
-fiscalYear.setLocale('en');
-console.log("English month names:");
-for (let i = 0; i < 12; i++) {
-    console.log(`Month ${i + 1}: ${fiscalYear.getLocalizedMonthName(i)}`);
+// Example 1: Display available locales
+function displayAvailableLocales() {
+  console.log('Available Locales:');
+  const locales = getAvailableLocales();
+  locales.forEach(locale => {
+    console.log(`- ${locale}`);
+  });
+  console.log();
 }
 
-console.log("\nFrench month names:");
-fiscalYear.setLocale('fr');
-for (let i = 0; i < 12; i++) {
-    console.log(`Month ${i + 1}: ${fiscalYear.getLocalizedMonthName(i)}`);
-}
-console.log("\n");
-
-// Example 5: Get localized day names
-console.log("Example 5: Localized Day Names");
-fiscalYear.setLocale('en');
-console.log("English day names:");
-for (let i = 0; i < 7; i++) {
-    console.log(`Day ${i}: ${fiscalYear.getLocalizedDayName(i)}`);
+// Example 2: Format dates in different locales
+function formatDatesInDifferentLocales() {
+  const today = new Date();
+  const locales = getAvailableLocales();
+  
+  console.log('Today\'s date in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`${locale}: ${formatLocalizedDate(today)}`);
+  });
+  console.log();
 }
 
-console.log("\nGerman day names:");
-fiscalYear.setLocale('de');
-for (let i = 0; i < 7; i++) {
-    console.log(`Day ${i}: ${fiscalYear.getLocalizedDayName(i)}`);
+// Example 3: Display month names in different locales
+function displayMonthNamesInDifferentLocales() {
+  const locales = ['en-US', 'fr', 'ja', 'ru'];
+  
+  console.log('Month names in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\n${locale}:`);
+    for (let month = 0; month < 12; month++) {
+      console.log(`${month + 1}: ${getLocalizedMonthName(month)}`);
+    }
+  });
+  console.log();
 }
-console.log("\n");
 
-// Example 6: Localize month options
-console.log("Example 6: Localized Month Options");
-fiscalYear.setLocale('en');
-const year = 2025;
-const monthOptions = fiscalYear.getMonthOptions(
-    fiscalYear.START_OF_WEEK.monday.value,
+// Example 4: Display day names in different locales
+function displayDayNamesInDifferentLocales() {
+  const locales = ['en-US', 'de', 'zh-CN', 'es'];
+  
+  console.log('Day names in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\n${locale}:`);
+    for (let day = 0; day < 7; day++) {
+      console.log(`${day}: ${getLocalizedDayName(day)}`);
+    }
+  });
+  console.log();
+}
+
+// Example 5: Format date ranges in different locales
+function formatDateRangesInDifferentLocales() {
+  const startDate = new Date(2025, 0, 1); // Jan 1, 2025
+  const endDate = new Date(2025, 11, 31); // Dec 31, 2025
+  const locales = ['en-US', 'fr', 'ja', 'de'];
+  
+  console.log('Date ranges in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`${locale}: ${formatLocalizedDateRange(startDate, endDate)}`);
+  });
+  console.log();
+}
+
+// Example 6: Localize fiscal year data
+function localizeFiscalYearData() {
+  // Get fiscal year configuration using preset
+  const config = getFiscalYearWithPreset('us-federal');
+  const currentYear = new Date().getFullYear();
+  
+  // Get calendar data
+  const months = getMonthOptions(
+    START_OF_WEEK.monday.value,
     null,
-    year
-);
-
-console.log("Original month options (first 3):");
-console.log(monthOptions.slice(0, 3));
-
-fiscalYear.setLocale('es');
-const localizedMonths = fiscalYear.localizeMonthOptions(monthOptions);
-console.log("\nLocalized month options in Spanish (first 3):");
-console.log(localizedMonths.slice(0, 3));
-console.log("\n");
-
-// Example 7: Format localized date ranges
-console.log("Example 7: Localized Date Ranges");
-const startDate = new Date(2025, 0, 15); // January 15, 2025
-const endDate = new Date(2025, 1, 20);   // February 20, 2025
-
-fiscalYear.setLocale('en');
-console.log(`English date range: ${fiscalYear.formatLocalizedDateRange(startDate, endDate)}`);
-
-fiscalYear.setLocale('fr');
-console.log(`French date range: ${fiscalYear.formatLocalizedDateRange(startDate, endDate)}`);
-
-fiscalYear.setLocale('de');
-console.log(`German date range: ${fiscalYear.formatLocalizedDateRange(startDate, endDate)}`);
-console.log("\n");
-
-// Example 8: Localize week options
-console.log("Example 8: Localized Week Options");
-fiscalYear.setLocale('en');
-const weekOptions = fiscalYear.getWeekOptions(
-    fiscalYear.START_OF_WEEK.monday.value,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  const quarters = getQuarterOptions(
+    START_OF_WEEK.monday.value,
     null,
-    year
-);
-
-const localizedWeeks = fiscalYear.localizeWeekOptions(weekOptions.slice(0, 3));
-console.log("Localized week options (first 3):");
-localizedWeeks.forEach(week => {
-    console.log(`Week ${week.week}: ${week.localizedDateRange}`);
-});
-console.log("\n");
-
-// Example 9: Localized quarter names
-console.log("Example 9: Localized Quarter Names");
-fiscalYear.setLocale('en');
-console.log("English quarter names:");
-for (let i = 1; i <= 4; i++) {
-    console.log(`Quarter ${i}: ${fiscalYear.getLocalizedQuarterName(i)}`);
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  const weeks = getWeekOptions(
+    START_OF_WEEK.monday.value,
+    null,
+    currentYear,
+    config.fyStartMonth,
+    config.fyStartDay
+  );
+  
+  // Localize data in different locales
+  const locales = ['en-US', 'fr', 'ja'];
+  
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\nFiscal Year Data in ${locale}:`);
+    
+    // Localize months
+    const localizedMonths = localizeMonthOptions(months);
+    console.log('\nMonths:');
+    localizedMonths.slice(0, 3).forEach(month => {
+      console.log(`Month ${month.month}: ${month.name} (${formatLocalizedDateRange(month.startTime, month.endTime, 'P')})`);
+    });
+    
+    // Localize quarters
+    const localizedQuarters = localizeQuarterOptions(quarters);
+    console.log('\nQuarters:');
+    localizedQuarters.forEach(quarter => {
+      console.log(`${quarter.quarter}: ${formatLocalizedDateRange(quarter.startTime, quarter.endTime, 'P')}`);
+    });
+    
+    // Localize weeks (showing just first 3)
+    const localizedWeeks = localizeWeekOptions(weeks);
+    console.log('\nWeeks (first 3):');
+    localizedWeeks.slice(0, 3).forEach(week => {
+      console.log(`Week ${week.week}: ${formatLocalizedDateRange(week.startTime, week.endTime, 'P')}`);
+    });
+  });
 }
 
-console.log("\nJapanese quarter names:");
-fiscalYear.setLocale('ja');
-for (let i = 1; i <= 4; i++) {
-    console.log(`Quarter ${i}: ${fiscalYear.getLocalizedQuarterName(i)}`);
+// Example 7: Display quarter names in different locales
+function displayQuarterNamesInDifferentLocales() {
+  const locales = ['en-US', 'fr', 'ja', 'ru', 'zh-CN'];
+  
+  console.log('Quarter names in different locales:');
+  locales.forEach(locale => {
+    setLocale(locale);
+    console.log(`\n${locale}:`);
+    for (let quarter = 1; quarter <= 4; quarter++) {
+      console.log(`${quarter}: ${getLocalizedQuarterName(quarter)}`);
+    }
+  });
+  console.log();
 }
-console.log("\n");
 
-// Example 10: Combining localization with fiscal year presets
-console.log("Example 10: Localized Fiscal Year Presets");
-fiscalYear.setLocale('fr');
-const usPreset = fiscalYear.getFiscalYearWithPreset("us-federal", null, year);
-const localizedPresetMonths = fiscalYear.localizeMonthOptions(usPreset.months);
+// Run all examples
+function runAllExamples() {
+  displayAvailableLocales();
+  formatDatesInDifferentLocales();
+  displayMonthNamesInDifferentLocales();
+  displayDayNamesInDifferentLocales();
+  formatDateRangesInDifferentLocales();
+  displayQuarterNamesInDifferentLocales();
+  localizeFiscalYearData();
+}
 
-console.log(`US Federal Government fiscal year ${year} months in French (first 3):`);
-localizedPresetMonths.slice(0, 3).forEach(month => {
-    console.log(`Month ${month.month}: ${month.name}, ${fiscalYear.formatLocalizedDateRange(month.startTime, month.endTime)}`);
-});
-
-// Reset locale to English
-fiscalYear.setLocale('en');
-
-// To run this example: node examples/localization.example.js
+// Run the examples
+runAllExamples();

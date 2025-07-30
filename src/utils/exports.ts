@@ -1,331 +1,271 @@
 /**
- * Export functionality for fiscal-year-calendar
+ * Export utilities for fiscal-year-calendar
+ * Provides functions to export calendar data to various formats
  */
-import moment from 'moment';
-import { WeekOption, QuarterOption, MonthOption, PeriodOption, BiWeeklyOption, SemiMonthlyOption } from '../types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
- * Converts a date string to the specified format
- * @param dateString - The date string to format
- * @param format - The format to convert to (default: 'YYYY-MM-DD')
- * @returns The formatted date string
+ * Options for CSV export
  */
-function formatDate(dateString: string, format: string = 'YYYY-MM-DD'): string {
-    return moment(new Date(dateString)).format(format);
+export interface CSVExportOptions {
+  headers?: string[];
+  fields?: string[];
+  delimiter?: string;
+  filename?: string;
 }
 
 /**
- * Exports fiscal calendar data to CSV format
- * @param data - The data to export (weeks, quarters, months, etc.)
- * @param options - Export options
- * @returns CSV string
+ * Options for JSON export
  */
-export function exportToCSV<T extends WeekOption | QuarterOption | MonthOption | PeriodOption | BiWeeklyOption | SemiMonthlyOption>(
-    data: T[],
-    options: {
-        dateFormat?: string;
-        includeHeaders?: boolean;
-        delimiter?: string;
-    } = {}
-): string {
-    const {
-        dateFormat = 'YYYY-MM-DD',
-        includeHeaders = true,
-        delimiter = ','
-    } = options;
+export interface JSONExportOptions {
+  pretty?: boolean;
+  filename?: string;
+}
 
-    // Determine the type of data and set appropriate headers
-    let headers: string[] = [];
-    if (data.length > 0) {
-        const firstItem = data[0];
-        
-        // Common properties for all types
-        headers.push('startDate', 'endDate');
-        
-        // Type-specific properties
-        if ('week' in firstItem) {
-            headers.unshift('week');
-        } else if ('quarter' in firstItem) {
-            headers.unshift('quarter');
-        } else if ('month' in firstItem) {
-            headers.unshift('month');
-            headers.splice(1, 0, 'name');
-        } else if ('period' in firstItem) {
-            headers.unshift('period');
-            if ('weeks' in firstItem) {
-                headers.push('weeks');
-            }
-        }
+/**
+ * Options for iCal export
+ */
+export interface ICalExportOptions {
+  calendarName?: string;
+  eventNamePrefix?: string;
+  eventNameField?: string;
+  startTimeField?: string;
+  endTimeField?: string;
+  description?: string;
+  filename?: string;
+}
+
+/**
+ * Options for HTML export
+ */
+export interface HTMLExportOptions {
+  title?: string;
+  tableHeaders?: string[];
+  tableFields?: string[];
+  cssStyles?: string;
+  filename?: string;
+}
+
+/**
+ * Export data to CSV format
+ * @param data - The data to export
+ * @param options - CSV export options
+ * @returns The CSV string
+ */
+export function exportToCSV(data: any[] | object, options: CSVExportOptions = {}): string {
+  const {
+    headers = [],
+    fields = [],
+    delimiter = ',',
+    filename
+  } = options;
+  
+  // Convert object to array if needed
+  const dataArray = Array.isArray(data) ? data : [data];
+  
+  // Generate headers if not provided
+  const csvHeaders = headers.length > 0 
+    ? headers 
+    : (fields.length > 0 
+      ? fields 
+      : Object.keys(dataArray[0] || {}));
+  
+  // Generate CSV content
+  let csvContent = csvHeaders.join(delimiter) + '\n';
+  
+  dataArray.forEach(item => {
+    const row = fields.length > 0
+      ? fields.map(field => item[field] || '')
+      : Object.values(item);
+    
+    csvContent += row.join(delimiter) + '\n';
+  });
+  
+  // Write to file if filename is provided
+  if (filename) {
+    const dir = path.dirname(filename);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
+    fs.writeFileSync(filename, csvContent);
+  }
+  
+  return csvContent;
+}
 
-    // Generate CSV content
-    let csv = '';
-    
-    // Add headers if requested
-    if (includeHeaders && headers.length > 0) {
-        csv += headers.join(delimiter) + '\n';
+/**
+ * Export data to JSON format
+ * @param data - The data to export
+ * @param options - JSON export options
+ * @returns The JSON string
+ */
+export function exportToJSON(data: any, options: JSONExportOptions = {}): string {
+  const { pretty = false, filename } = options;
+  
+  const jsonContent = pretty 
+    ? JSON.stringify(data, null, 2) 
+    : JSON.stringify(data);
+  
+  // Write to file if filename is provided
+  if (filename) {
+    const dir = path.dirname(filename);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    
-    // Add data rows
-    data.forEach(item => {
-        const row: string[] = [];
-        
-        // Add appropriate fields based on the type
-        if ('week' in item) {
-            row.push(item.week);
-        } else if ('quarter' in item) {
-            row.push(item.quarter);
-        } else if ('month' in item) {
-            row.push(item.month);
-            row.push((item as MonthOption).name);
-        } else if ('period' in item) {
-            row.push(item.period);
-        }
-        
-        // Add common fields
-        row.push(formatDate(item.startTime, dateFormat));
-        row.push(formatDate(item.endTime, dateFormat));
-        
-        // Add weeks if available
-        if ('weeks' in item) {
-            row.push(String((item as PeriodOption).weeks));
-        }
-        
-        csv += row.join(delimiter) + '\n';
-    });
-    
-    return csv;
+    fs.writeFileSync(filename, jsonContent);
+  }
+  
+  return jsonContent;
 }
 
 /**
- * Exports fiscal calendar data to JSON format
- * @param data - The data to export (weeks, quarters, months, etc.)
- * @param options - Export options
- * @returns JSON string
+ * Export data to iCal format
+ * @param data - The data to export
+ * @param options - iCal export options
+ * @returns The iCal string
  */
-export function exportToJSON<T extends WeekOption | QuarterOption | MonthOption | PeriodOption | BiWeeklyOption | SemiMonthlyOption>(
-    data: T[],
-    options: {
-        dateFormat?: string;
-        pretty?: boolean;
-    } = {}
-): string {
-    const {
-        dateFormat = 'YYYY-MM-DD',
-        pretty = false
-    } = options;
+export function exportToICal(data: any[] | object, options: ICalExportOptions = {}): string {
+  const {
+    calendarName = 'Fiscal Calendar',
+    eventNamePrefix = '',
+    eventNameField = 'name',
+    startTimeField = 'startTime',
+    endTimeField = 'endTime',
+    description = '',
+    filename
+  } = options;
+  
+  // Convert object to array if needed
+  const dataArray = Array.isArray(data) ? data : [data];
+  
+  // Generate iCal content
+  let iCalContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//fiscal-year-calendar//EN',
+    `X-WR-CALNAME:${calendarName}`,
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH'
+  ].join('\r\n') + '\r\n';
+  
+  // Add events
+  dataArray.forEach(item => {
+    const eventName = `${eventNamePrefix}${item[eventNameField] || ''}`;
+    const startTime = new Date(item[startTimeField]);
+    const endTime = new Date(item[endTimeField]);
     
-    // Format dates in the data
-    const formattedData = data.map(item => {
-        const result: Record<string, any> = { ...item };
-        result.startDate = formatDate(item.startTime, dateFormat);
-        result.endDate = formatDate(item.endTime, dateFormat);
-        
-        // Keep original date strings if needed
-        if (dateFormat !== 'original') {
-            delete result.startTime;
-            delete result.endTime;
-        }
-        
-        return result;
-    });
+    // Format dates for iCal
+    const formatDate = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
     
-    // Convert to JSON string
-    return JSON.stringify(formattedData, null, pretty ? 2 : 0);
-}
-
-/**
- * Exports fiscal calendar data to iCalendar format
- * @param data - The data to export (weeks, quarters, months, etc.)
- * @param options - Export options
- * @returns iCalendar string
- */
-export function exportToICal<T extends WeekOption | QuarterOption | MonthOption | PeriodOption | BiWeeklyOption | SemiMonthlyOption>(
-    data: T[],
-    options: {
-        calendarName?: string;
-        eventPrefix?: string;
-    } = {}
-): string {
-    const {
-        calendarName = 'Fiscal Calendar',
-        eventPrefix = 'Fiscal'
-    } = options;
-    
-    // Start iCalendar file
-    let ical = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//fiscal-year-calendar//EN',
-        `X-WR-CALNAME:${calendarName}`,
-        'CALSCALE:GREGORIAN',
-        'METHOD:PUBLISH'
+    iCalContent += [
+      'BEGIN:VEVENT',
+      `UID:${Math.random().toString(36).substring(2)}@fiscal-calendar`,
+      `DTSTAMP:${formatDate(new Date())}`,
+      `DTSTART:${formatDate(startTime)}`,
+      `DTEND:${formatDate(endTime)}`,
+      `SUMMARY:${eventName}`,
+      `DESCRIPTION:${description}`,
+      'END:VEVENT'
     ].join('\r\n') + '\r\n';
-    
-    // Add events for each period
-    data.forEach(item => {
-        // Determine event type and summary
-        let eventType: string;
-        let summary: string;
-        
-        if ('week' in item) {
-            eventType = 'Week';
-            summary = `${eventPrefix} Week ${item.week}`;
-        } else if ('quarter' in item) {
-            eventType = 'Quarter';
-            summary = `${eventPrefix} Quarter ${item.quarter}`;
-        } else if ('month' in item) {
-            eventType = 'Month';
-            summary = `${eventPrefix} Month ${item.month} (${(item as MonthOption).name})`;
-        } else if ('period' in item) {
-            eventType = 'Period';
-            summary = `${eventPrefix} Period ${item.period}`;
-            if ('weeks' in item) {
-                summary += ` (${(item as PeriodOption).weeks} weeks)`;
-            }
-        } else {
-            eventType = 'Period';
-            summary = `${eventPrefix} Period`;
-        }
-        
-        // Format dates for iCal (remove dashes, colons, etc.)
-        const startDate = moment(new Date(item.startTime)).format('YYYYMMDD');
-        
-        // End date needs to be the day after the end date because iCal uses exclusive end dates
-        const endDate = moment(new Date(item.endTime)).add(1, 'day').format('YYYYMMDD');
-        
-        // Create event
-        ical += [
-            'BEGIN:VEVENT',
-            `SUMMARY:${summary}`,
-            `DTSTART;VALUE=DATE:${startDate}`,
-            `DTEND;VALUE=DATE:${endDate}`,
-            `DESCRIPTION:${eventPrefix} ${eventType} from ${formatDate(item.startTime)} to ${formatDate(item.endTime)}`,
-            `UID:${startDate}-${endDate}-${eventType.toLowerCase()}-${Math.random().toString(36).substring(2, 11)}`,
-            'SEQUENCE:0',
-            'STATUS:CONFIRMED',
-            'TRANSP:TRANSPARENT',
-            'END:VEVENT'
-        ].join('\r\n') + '\r\n';
-    });
-    
-    // End iCalendar file
-    ical += 'END:VCALENDAR\r\n';
-    
-    return ical;
+  });
+  
+  iCalContent += 'END:VCALENDAR';
+  
+  // Write to file if filename is provided
+  if (filename) {
+    const dir = path.dirname(filename);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(filename, iCalContent);
+  }
+  
+  return iCalContent;
 }
 
 /**
- * Exports fiscal calendar data to HTML format
- * @param data - The data to export (weeks, quarters, months, etc.)
- * @param options - Export options
- * @returns HTML string
+ * Export data to HTML format
+ * @param data - The data to export
+ * @param options - HTML export options
+ * @returns The HTML string
  */
-export function exportToHTML<T extends WeekOption | QuarterOption | MonthOption | PeriodOption | BiWeeklyOption | SemiMonthlyOption>(
-    data: T[],
-    options: {
-        title?: string;
-        dateFormat?: string;
-        includeStyles?: boolean;
-    } = {}
-): string {
-    const {
-        title = 'Fiscal Calendar',
-        dateFormat = 'YYYY-MM-DD',
-        includeStyles = true
-    } = options;
-    
-    // Determine the type of data and set appropriate headers
-    let headers: string[] = [];
-    let dataType = '';
-    
-    if (data.length > 0) {
-        const firstItem = data[0];
-        
-        // Common properties for all types
-        headers.push('Start Date', 'End Date');
-        
-        // Type-specific properties
-        if ('week' in firstItem) {
-            headers.unshift('Week');
-            dataType = 'Weeks';
-        } else if ('quarter' in firstItem) {
-            headers.unshift('Quarter');
-            dataType = 'Quarters';
-        } else if ('month' in firstItem) {
-            headers.unshift('Month');
-            headers.splice(1, 0, 'Name');
-            dataType = 'Months';
-        } else if ('period' in firstItem) {
-            headers.unshift('Period');
-            dataType = 'Periods';
-            if ('weeks' in firstItem) {
-                headers.push('Weeks');
-            }
-        }
-    }
-    
-    // Generate HTML content
-    let html = `<!DOCTYPE html>
+export function exportToHTML(data: any[] | object, options: HTMLExportOptions = {}): string {
+  const {
+    title = 'Fiscal Calendar',
+    tableHeaders = [],
+    tableFields = [],
+    cssStyles = '',
+    filename
+  } = options;
+  
+  // Convert object to array if needed
+  const dataArray = Array.isArray(data) ? data : [data];
+  
+  // Generate headers if not provided
+  const headers = tableHeaders.length > 0 
+    ? tableHeaders 
+    : (tableFields.length > 0 
+      ? tableFields 
+      : Object.keys(dataArray[0] || {}));
+  
+  // Generate HTML content
+  let htmlContent = `
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-    ${includeStyles ? `<style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #333; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        tr:hover { background-color: #f1f1f1; }
-    </style>` : ''}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <style>
+    ${cssStyles}
+  </style>
 </head>
 <body>
-    <h1>${title}</h1>
-    <p>Fiscal Calendar ${dataType}</p>
-    <table>
-        <thead>
-            <tr>
-                ${headers.map(header => `<th>${header}</th>`).join('')}
-            </tr>
-        </thead>
-        <tbody>`;
+  <h1>${title}</h1>
+  <table>
+    <thead>
+      <tr>
+        ${headers.map(header => `<th>${header}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>
+`;
+  
+  // Add rows
+  dataArray.forEach(item => {
+    htmlContent += '      <tr>\n';
     
-    // Add data rows
-    data.forEach(item => {
-        html += '<tr>';
-        
-        // Add appropriate fields based on the type
-        if ('week' in item) {
-            html += `<td>${item.week}</td>`;
-        } else if ('quarter' in item) {
-            html += `<td>${item.quarter}</td>`;
-        } else if ('month' in item) {
-            html += `<td>${item.month}</td>`;
-            html += `<td>${(item as MonthOption).name}</td>`;
-        } else if ('period' in item) {
-            html += `<td>${item.period}</td>`;
-        }
-        
-        // Add common fields
-        html += `<td>${formatDate(item.startTime, dateFormat)}</td>`;
-        html += `<td>${formatDate(item.endTime, dateFormat)}</td>`;
-        
-        // Add weeks if available
-        if ('weeks' in item && 'period' in item) {
-            html += `<td>${(item as PeriodOption).weeks}</td>`;
-        }
-        
-        html += '</tr>';
-    });
+    if (tableFields.length > 0) {
+      tableFields.forEach(field => {
+        htmlContent += `        <td>${item[field] || ''}</td>\n`;
+      });
+    } else {
+      Object.values(item).forEach(value => {
+        htmlContent += `        <td>${value || ''}</td>\n`;
+      });
+    }
     
-    html += `
-        </tbody>
-    </table>
+    htmlContent += '      </tr>\n';
+  });
+  
+  htmlContent += `
+    </tbody>
+  </table>
 </body>
-</html>`;
-    
-    return html;
+</html>
+`;
+  
+  // Write to file if filename is provided
+  if (filename) {
+    const dir = path.dirname(filename);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(filename, htmlContent);
+  }
+  
+  return htmlContent;
 }
