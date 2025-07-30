@@ -70,7 +70,7 @@
     "moment-timezone": "^0.6.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.5",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.7.4",
@@ -90,7 +90,7 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.33.2",
     "esm": "^3.2.25",
-    "jest": "^29.7.0",
+    "jest": "^30.0.5",
     "json-loader": "^0.5.7",
     "regenerator-runtime": "^0.14.0",
     "rimraf": "^6.0.1",
